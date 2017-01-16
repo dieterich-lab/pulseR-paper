@@ -37,5 +37,13 @@ of mRNA synthesis and decay in yeast
     - excluded transcripts with not desired ratios (L/total) > 1 (!)
 
     
-
+*  Determinants of RNA metabolism in the Schizosaccharomyces pombe genome  
+    Philipp Eser, Leonhard Wachutka, Kerstin C Maier, 
+    Carina Demel, Mariana Boroni, Srignanakshi Iyer,
+    Patrick Cramer, Julien Gagneur
+    [link](http://msb.embopress.org/content/12/2/857.long)  
+    [raw](http://www.ebi.ac.uk/arrayexpress/experiments/E-MTAB-3653/)
     
+* TT-seq by Cramer  
+    [link](https://www.ncbi.nlm.nih.gov/pubmed/27257258)
+    [raw](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE75792)
