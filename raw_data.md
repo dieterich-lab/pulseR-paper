@@ -1,7 +1,8 @@
 The raw data are available in the following papers:
 
-* Public on Jul 07, 2014  
-    Selective transcriptional regulation by Myc in cellular growth control and lymphomagenesis.
+#.   Selective transcriptional regulation by Myc in cellular growth control
+    and lymphomagenesis. 
+    Public on Jul 07, 2014  
     [link](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4110711/pdf/emss-58841.pdf),
     [geo](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE51011)
     - no spike-ins  
@@ -9,7 +10,7 @@ The raw data are available in the following papers:
     - only one sample of 10-min 4sU
     - fpkm tables and bed files
 
-* Rabani M, Levin JZ, Fan L, et al. Metabolic labeling of RNA uncovers 
+#. Rabani M, Levin JZ, Fan L, et al. Metabolic labeling of RNA uncovers 
     principles of RNA production and degradation dynamics in mammalian cells.
     Nature biotechnology. 2011;29(5):436-442. doi:10.1038/nbt.1861.
     [link](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3114636/#S45title)
@@ -23,7 +24,7 @@ The raw data are available in the following papers:
     - complicated synthesis rate function(6 params)
     - simple degradation rate (1 param)
     - variable parameters in time
-* Dynamic transcriptome analysis measures rates
+#. Dynamic transcriptome analysis measures rates
 of mRNA synthesis and decay in yeast   
     [link](http://msb.embopress.org/content/7/1/458.long)
     - microarray by Cramer
@@ -37,13 +38,32 @@ of mRNA synthesis and decay in yeast
     - excluded transcripts with not desired ratios (L/total) > 1 (!)
 
     
-*  Determinants of RNA metabolism in the Schizosaccharomyces pombe genome  
+#.  Determinants of RNA metabolism in the Schizosaccharomyces pombe genome  
     Philipp Eser, Leonhard Wachutka, Kerstin C Maier, 
     Carina Demel, Mariana Boroni, Srignanakshi Iyer,
     Patrick Cramer, Julien Gagneur
     [link](http://msb.embopress.org/content/12/2/857.long)  
     [raw](http://www.ebi.ac.uk/arrayexpress/experiments/E-MTAB-3653/)
+    - NB
+    - sample-specific normalisation
+    - Uracil bias  
     
-* TT-seq by Cramer  
+        > However, we found that a U-bias correction would have 
+        > negligible effects
+        > for intron-containing TUs because even their mature RNAs were 
+        > generally containing many Us (short TUs
+        > were almost all single-exon). 
+        > Hence, for typical values of p(4tU replaces U),
+        > p(4tUI) was very close to 1 for intron-containing TUs.
+    
+#. TT-seq by Cramer  
     [link](https://www.ncbi.nlm.nih.gov/pubmed/27257258)
     [raw](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE75792)
+    - spike-ins for cross-contamination estimation
+    
+        > Labeling and modeling approaches that
+        > were used so far quantify RNAs as newly synthesized despite the   
+        > fact that they carry a non- negligible part of pre-existing RNA.
+        > This is introducing a bias especially towards longer
+        > genes given our short labeling pulse of 5 minutes
+    
