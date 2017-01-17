@@ -44,6 +44,7 @@ of mRNA synthesis and decay in yeast
     Patrick Cramer, Julien Gagneur
     [link](http://msb.embopress.org/content/12/2/857.long)  
     [raw](http://www.ebi.ac.uk/arrayexpress/experiments/E-MTAB-3653/)
+    - only fastq available
     - NB
     - sample-specific normalisation
     - Uracil bias  
@@ -66,4 +67,8 @@ of mRNA synthesis and decay in yeast
         > fact that they carry a non- negligible part of pre-existing RNA.
         > This is introducing a bias especially towards longer
         > genes given our short labeling pulse of 5 minutes
+        
+    - gtf + count table for transcription units. gtf line number is not
+        compatible with any TU number in the paper. No possibility to
+        join this tables.
     
