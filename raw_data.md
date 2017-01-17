@@ -71,4 +71,17 @@ of mRNA synthesis and decay in yeast
     - gtf + count table for transcription units. gtf line number is not
         compatible with any TU number in the paper. No possibility to
         join this tables.
+
+6. Marzi MJ, Ghini F, Cerruti B, de Pretis S et al. Degradation dynamics
+    of microRNAs revealed by a novel pulse-chase approach. 
+    Genome Res 2016 Apr;26(4):554-65. PMID: 26821571 
+    [link](http://genome.cshlp.org/content/26/4/554.full.pdf+html)
+    [raw table](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE72655)
+    - miRNA 4sU
+    - InSPECT on rpkms
+    - raw count table available
+    - rate estimation in xlsx
     
+7. The Biogenesis of Nascent Circular RNAs  
+    [link](http://www.sciencedirect.com/science/article/pii/S2211124716303291)  
+    [raw bw](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE73325)
