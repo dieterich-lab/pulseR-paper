@@ -111,7 +111,7 @@ of mRNA synthesis and decay in yeast
     [raw tables](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE84722)  
     
 
-10. DRiLL  
+10. DRiLL  (the continuation of the [2])
     [paper](http://www.cell.com/cell/pdfExtended/S0092-8674(14)01446-9)  
     [software site with raw count examples](https://portals.broadinstitute.org/rnalifecycle#download_data)  
     [geo raw counts](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE56977)
@@ -120,3 +120,5 @@ of mRNA synthesis and decay in yeast
     - include processing in the model
     - LR test to choose between constant vs. changing rates
     - contamination with unlabelled estimated: 30.2%!
+    - strange, that normalisation of laballed fraction is the same for 
+        different time points

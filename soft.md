@@ -14,7 +14,9 @@
     [geo raw counts](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE56977)
     - proprietary  
     - binomial model for mean count estimation
-    - include processing in the model
+    - include processing of RNA in the model
     - LR test to choose between constant vs. changing rates
     - fitting by LSE
+    - strange, that normalisation of laballed fraction is the same for 
+        different time points
     
