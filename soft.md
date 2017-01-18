@@ -7,3 +7,14 @@
     - normalisation by regression  (Doelken 2008)
     - filtering by expression
     - used in [paper](http://nar.oxfordjournals.org/content/44/3/1370.full)
+
+* DRiLL  
+    [paper](http://www.cell.com/cell/pdfExtended/S0092-8674(14)01446-9)  
+    [software site with raw count examples](https://portals.broadinstitute.org/rnalifecycle#download_data)  
+    [geo raw counts](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE56977)
+    - proprietary  
+    - binomial model for mean count estimation
+    - include processing in the model
+    - LR test to choose between constant vs. changing rates
+    - fitting by LSE
+    

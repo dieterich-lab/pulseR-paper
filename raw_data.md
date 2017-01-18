@@ -85,3 +85,38 @@ of mRNA synthesis and decay in yeast
 7. The Biogenesis of Nascent Circular RNAs  
     [link](http://www.sciencedirect.com/science/article/pii/S2211124716303291)  
     [raw bw](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE73325)
+    
+8. Determination of in vivo RNA kinetics using RATE-seq   
+    [link](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4174445/pdf/1645.pdf)
+   [raw counts](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4174445/bin/supp_20_10_1645__index.html)
+   
+   -  least squares model
+   
+    > We studied the mean-varance relationship at each time point and found that the data
+    > are overdispersed (Supplemental Fig. S10). Therefore, to estimate
+    > the degradation rate constant for individual transcripts
+    > we performed a nonlinear weighted regression using normalized 
+    > counts from the combined data set (Fig. 2B) (Materials
+    > and Methods). We determined confidence intervals for the es-
+    > timated decay constant for each transcript using bootstrapped
+    > values from each time-point 
+    
+    - normalised counts in suppl., maybe it's possible to recover the raw
+        and the spike-ins
+      
+9. Uwe Ohler.  
+    Integrative classification of human coding and noncoding
+    genes through RNA metabolism profiles.  
+    [link](http://www.nature.com/nsmb/journal/v24/n1/pdf/nsmb.3325.pdf)  
+    [raw tables](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE84722)  
+    
+
+10. DRiLL  
+    [paper](http://www.cell.com/cell/pdfExtended/S0092-8674(14)01446-9)  
+    [software site with raw count examples](https://portals.broadinstitute.org/rnalifecycle#download_data)  
+    [geo raw counts](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE56977)
+    - proprietary  
+    - binomial model for mean count estimation
+    - include processing in the model
+    - LR test to choose between constant vs. changing rates
+    - contamination with unlabelled estimated: 30.2%!
