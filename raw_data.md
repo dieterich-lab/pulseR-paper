@@ -1,8 +1,4 @@
----
-output:
-  html_document: default
-  pdf_document: default
----
+
 The raw data are available in the following papers:
 
 1.   Selective transcriptional regulation by Myc in cellular growth control
