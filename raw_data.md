@@ -128,7 +128,7 @@ of mRNA synthesis and decay in yeast
    > resolved by more efficient biotin conjugation methods
    
    - RSEM counts available for mature/primary RNA for total
-   - TPM only for labelling experiments (for
+   - TPM only for labelling experiments 
    - no spike-ins, except total in order to estimate copies per cell 
    
    
