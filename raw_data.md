@@ -109,7 +109,21 @@ of mRNA synthesis and decay in yeast
     genes through RNA metabolism profiles.  
     [link](http://www.nature.com/nsmb/journal/v24/n1/pdf/nsmb.3325.pdf)  
     [raw tables](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE84722)  
-    
+   - INSPEcT
+   - processing in the model
+   
+   >  For each gene, we calculated the expression of 
+   > ‘mature’ RNA as the sum of all isoforms for that gene excluding
+   > the ‘primary’ transcript. For intronless genes, primary and 
+   > mature expression values were summed.
+   
+   - artifacts  
+   
+   > Rates estimated from 7 and 15 min were systematically higher
+   > and exhibited a larger coefficient of variation (data not shown) 
+   > that could potentially have been 
+   > resolved by more efficient biotin conjugation methods
+   
 
 10. DRiLL  (the continuation of the [2])
     [paper](http://www.cell.com/cell/pdfExtended/S0092-8674(14)01446-9)  
