@@ -1,3 +1,8 @@
+---
+output:
+  html_document: default
+  pdf_document: default
+---
 The raw data are available in the following papers:
 
 1.   Selective transcriptional regulation by Myc in cellular growth control
@@ -85,6 +90,8 @@ of mRNA synthesis and decay in yeast
 7. The Biogenesis of Nascent Circular RNAs  
     [link](http://www.sciencedirect.com/science/article/pii/S2211124716303291)  
     [raw bw](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE73325)
+    - super short labelling 
+    - aim to measure elongation rate, but not metabolism
     
 8. Determination of in vivo RNA kinetics using RATE-seq   
     [link](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4174445/pdf/1645.pdf)
@@ -123,6 +130,11 @@ of mRNA synthesis and decay in yeast
    > and exhibited a larger coefficient of variation (data not shown) 
    > that could potentially have been 
    > resolved by more efficient biotin conjugation methods
+   
+   - RSEM counts available for mature/primary RNA for total
+   - TPM only for labelling experiments (for
+   - no spike-ins data in tables
+   
    
 
 10. DRiLL  (the continuation of the [2])

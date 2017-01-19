@@ -19,4 +19,14 @@
     - fitting by LSE
     - strange, that normalisation of laballed fraction is the same for 
         different time points
+
+* INSPEcT  
+    [paper](https://www.ncbi.nlm.nih.gov/pubmed/25957348)  
+    [soft](http://bioconductor.org/packages/release/bioc/html/INSPEcT.html)
+    
+    - pure R
+    - hardcoded fractions
+    - normal noise
+    - infer from exon and introns RPKMs
+    - no support for flow-through
     
