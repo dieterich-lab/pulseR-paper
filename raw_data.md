@@ -133,7 +133,7 @@ of mRNA synthesis and decay in yeast
    
    - RSEM counts available for mature/primary RNA for total
    - TPM only for labelling experiments (for
-   - no spike-ins data in tables
+   - no spike-ins, except total in order to estimate copies per cell 
    
    
 

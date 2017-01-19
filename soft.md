@@ -29,4 +29,6 @@
     - normal noise
     - infer from exon and introns RPKMs
     - no support for flow-through
+    - does not utilize spike-ins, fit fraction coeff. from data =>
+    (can't help if only one time point,)
     
