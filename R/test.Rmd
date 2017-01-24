@@ -29,7 +29,9 @@ formulas <- MeanFormulas(
   lab   = mu * (1 - exp(-d * time)),
   unlab = mu * exp(-d * time)
 )
-conditions <- data.frame(condition = rep(names(formulas), each=replicateNum), time=time)
+conditions <- data.frame(condition = rep(names(formulas),
+                                         each = replicateNum),
+                                         time = time)
 knitr::kable(conditions)
 
 ```
@@ -92,6 +94,7 @@ pr <- predictExpression(fit$par, pd)
 ```{r echo=FALSE, fig.height=3, fig.width=6, message=FALSE}
 library(cowplot)
 cols <- rep(pd$fraction[], each=dim(pd$count_data)[1])
+cols <- relevel(cols, ref="total.12")
 colsSamples <- rep(colnames(pd$count_data[,]), each=dim(pd$count_data)[1])
 q <- qplot(
   y=as.vector(pr$predictions[,] + .5),
