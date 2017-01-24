@@ -6,3 +6,6 @@
 ### similar soft 
 [is here](soft.md)
 
+### the pdf
+[paper](paper/paper.pdf)
+
