@@ -1,0 +1,60 @@
+---
+title: "R Notebook"
+output:
+  html_document: default
+  html_notebook: default
+---
+
+```{r}
+library(pulseR)
+replicateNum <- 3
+time <- 1
+geneNum <- 100
+```
+
+# Generate test data
+
+Define experiment with three fractions:
+- total
+- 4sU labelled
+- flow-through.
+
+Let's generate `r replicateNum` replicates for every condition for a single time point `r time`.
+
+```{r echo=TRUE}
+formulas <- MeanFormulas(
+  total = mu,
+  lab   = mu * (1 - exp(-d * time)),
+  flow  = mu * exp(-d * time)
+)
+conditions <- data.frame(condition = rep(names(formulas), each=replicateNum), time=time)
+knitr::kable(conditions)
+
+```
+
+Here we create parameters for `r geneNum` genes:
+```{r}
+rownames(conditions) <- paste0("sample_", seq_along(conditions$condition))
+t <- pulseR:::addKnownShared(formulas, conditions)
+formulas_known <- t$formulas
+conditions_known <- data.frame(condition = t$conditions)
+
+fractions <- factor(conditions_known$condition)
+par <- list(size = 1e2)
+par$individual_params <- data.frame(
+  a = runif(geneNum, 1,1e6), b = runif(geneNum,.1,.8))
+rownames(par$individual_params) <- paste0("gene_", 1:geneNum)
+
+par$fraction_factors <- 1 * (1:(length(levels(fractions)) - 1))
+```
+
+```{r}
+counts <- generateTestDataFrom(formulas_known,par,conditions_known, fractions)
+
+pd <- PulseData(
+    count_data = counts,
+    conditions = conditions,
+    formulas   = formulas,
+    fractions  = ~condition+time)
+```
+
