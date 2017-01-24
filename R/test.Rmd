@@ -108,15 +108,20 @@ save_plot(filename = "../paper/fig/predictions.tiff",
           plot = q,
           base_height = 3,
           base_width = 6)
+save_plot(filename = "../paper/fig/predictions.pdf", 
+          plot = q,
+          base_height = 3,
+          base_width = 6)
 ```
 
-```{r, fig.height=3, fig.width=6}
+```{r, fig.height=6, fig.width=6}
 q_d <- qplot(
   y = fit$par$individual_params$d,
   x = par$individual_params$d,
   xlab = "true",
   ylab = "fitted",
-  main="d"
+  #main="d"
+  main="degradation"
   )
 
 q_mu <- qplot(
@@ -125,24 +130,18 @@ q_mu <- qplot(
   log = 'xy',
   xlab = "true",
   ylab = "fitted",
-  main=expression(mu)
+  #main=expression(mu)
+  main="expression"
   
 )
 
-q <- plot_grid(q_mu, q_d, align="h")
-save_plot(filename = "../paper/fig/parameters.tiff", 
-          plot = q,
-          base_height = 3,
-          base_width = 6)
-      
-```
-```{r, fig.height=3, fig.width=6}
 delta <- par$individual_params - fit$par$individual_params
 delta_d <- qplot(
   x = par$individual_params$mu,
   y = abs(delta$d),
   log = 'x',
-  main="d"
+  #main="d"
+  main="degradation"
   ) + 
   xlab(expression(mu)) + 
   ylab("error")
@@ -150,16 +149,26 @@ delta_mu <- qplot(
   x = par$individual_params$mu,
   y = abs(delta$mu) / par$individual_params$mu,
   log = 'x',
-  main=expression(mu)
+  #main=expression(mu)
+  main="expression"
   ) + 
   xlab(expression(mu)) + 
   ylab("rel. error")
 
-q <- plot_grid(delta_mu, delta_d, align="h")
+q <- plot_grid(q_mu,
+               q_d,
+               delta_mu,
+               delta_d,
+               align = "hv",
+               labels = LETTERS[1:4])
 q
-save_plot(filename = "../paper/fig/error.tiff", 
+save_plot(filename = "../paper/fig/parameters.tiff", 
           plot = q,
-          base_height = 3,
+          base_height = 6,
           base_width = 6)
+save_plot(filename = "../paper/fig/parameters.pdf", 
+          plot = q,
+          base_height = 6,
+          base_width = 6)
+      
 ```
-
