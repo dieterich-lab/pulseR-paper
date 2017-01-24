@@ -1,8 +1,9 @@
 ---
 title: "R Notebook"
 output:
-  html_document: default
+  pdf_document: default
   html_notebook: default
+  html_document: default
 ---
 
 ```{r}
@@ -10,6 +11,7 @@ library(pulseR)
 replicateNum <- 3
 time <- 1
 geneNum <- 100
+set.seed(259)
 ```
 
 # Generate test data
@@ -41,20 +43,123 @@ conditions_known <- data.frame(condition = t$conditions)
 
 fractions <- factor(conditions_known$condition)
 par <- list(size = 1e2)
-par$individual_params <- data.frame(
-  a = runif(geneNum, 1,1e6), b = runif(geneNum,.1,.8))
+par$individual_params <- data.frame(mu = 10^runif(geneNum, 0, 6),
+                                    d = -log(runif(geneNum, .1, .9)))
 rownames(par$individual_params) <- paste0("gene_", 1:geneNum)
 
 par$fraction_factors <- 1 * (1:(length(levels(fractions)) - 1))
 ```
 
 ```{r}
-counts <- generateTestDataFrom(formulas_known,par,conditions_known, fractions)
+counts <- generateTestDataFrom(formulas_known, par,
+                               conditions_known,
+                               fractions)
 
 pd <- PulseData(
     count_data = counts,
     conditions = conditions,
     formulas   = formulas,
     fractions  = ~condition+time)
+```
+
+```{r cache=TRUE}
+
+par2 <- par
+guess <-  apply(counts[, conditions$condition == "total"], 1, mean)
+par2$individual_params$mu <- guess
+par2$individual_params$d <- runif(geneNum,0,5)
+par2$size <- 1e4
+par2$fraction_factors <- rep(1, length(par$fraction_factors))
+
+options <- list(
+  lower_boundary = c(1,1e-3),
+  upper_boundary = c(1e10, 5),
+  lower_boundary_size = 1,
+  upper_boundary_size = 1e9,
+  lower_boundary_fraction = .1,
+  upper_boundary_fraction = 10,
+  cores = 2
+)
+options$parscales <- c(1e5,1)
+
+fit <- fitModel(pd, par2, options)
+```
+```{r}
+
+pr <- predictExpression(fit$par, pd)
+```
+
+```{r echo=FALSE, fig.height=3, fig.width=6, message=FALSE}
+library(cowplot)
+cols <- rep(pd$fraction[], each=dim(pd$count_data)[1])
+colsSamples <- rep(colnames(pd$count_data[,]), each=dim(pd$count_data)[1])
+q <- qplot(
+  x=as.vector(pr$predictions[,] + .5),
+  y=as.vector(pd$count_data[,] + .5),
+  #col=colsSamples,
+  log = 'xy',
+  ylab = 'raw',
+  xlab = 'prediction',
+  size=I(.2), facets=~cols 
+  )+ theme_minimal() +
+  geom_abline(color="red", size=I(.1))
+q
+save_plot(filename = "../paper/fig/predictions.tiff", 
+          plot = q,
+          base_height = 3,
+          base_width = 6)
+```
+
+```{r, fig.height=3, fig.width=6}
+q_d <- qplot(
+  y = fit$par$individual_params$d,
+  x = par$individual_params$d,
+  xlab = "true",
+  ylab = "fitted",
+  main="d"
+  )
+
+q_mu <- qplot(
+  y = fit$par$individual_params$mu,
+  x = par$individual_params$mu,
+  log = 'xy',
+  xlab = "true",
+  ylab = "fitted",
+  main=expression(mu)
+  
+)
+
+q <- plot_grid(q_mu, q_d, align="h")
+save_plot(filename = "../paper/fig/parameters.tiff", 
+          plot = q,
+          base_height = 3,
+          base_width = 6)
+      
+```
+```{r, fig.height=3, fig.width=6}
+delta <- par$individual_params - fit$par$individual_params
+delta_d <- qplot(
+  x = par$individual_params$mu,
+  y = abs(delta$d),
+  log = 'x',
+  main="d"
+  ) + 
+  xlab(expression(mu)) + 
+  ylab("error")
+delta_mu <- qplot(
+  x = par$individual_params$mu,
+  y = abs(delta$mu) / par$individual_params$mu,
+  log = 'x',
+  main=expression(mu)
+  ) + 
+  xlab(expression(mu)) + 
+  ylab("rel. error")
+
+q <- plot_grid(delta_mu, delta_d, align="h")
+q
+save_plot(filename = "../paper/fig/error.tiff", 
+          plot = q,
+          base_height = 3,
+          base_width = 6)
 ```
 
