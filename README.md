@@ -9,3 +9,6 @@
 ### the pdf
 [paper](paper/paper.pdf)
 
+### reproduce
+[notebook](R/test.pdf)
+
