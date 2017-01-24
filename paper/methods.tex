@@ -1,1 +1,36 @@
- 
+First-order reaction kinetics  is one of simplified models,
+which can help to describe RNA dynamics \emph{in vivo}\cite{A}.
+Given
+\begin{itemize}
+ \item constant synthesis rate $s$ and
+\item degradation rate $d$, 
+\end{itemize}
+RNA concentration $r$ follows the ordinary differential equation
+\begin{equation}
+ \dot{r} = s - dr,
+\end{equation}
+where $\dot{r}$ stands for the time derivative of the $r$\cite{A}.
+\par
+During synthesis, a new RNA molecule incorporates labelled uridine bases\cite{A}.
+For zero initial condition $r_L(0) = 0$, the solution is
+\begin{equation}
+ r_\text{L}(t) = \frac{s}{d}\left(1 - e^{-dt}\right).
+\end{equation}
+With time, the labelled fraction tends to the steady state level of concentration $\mu$,
+$\lim_{t\to\infty} r_\text{L}(t) = \frac{s}{d} = \mu$.
+In contrast, the unlabelled molecules are only being degraded during the \emph{pulse}-experiment.
+Hence, assuming initial level of unlabelled RNA to be the steady-state one, $r_U = \mu$,
+the the amount of unlabelled fraction at a time $t$ is
+\begin{equation}
+ r_\text{U}(t) = \mu e^{-dt}.
+\end{equation}
+The example model includes only two parameters and does not consider
+RNA maturation and existence of several isoforms. For more complex approaches we refer to \cite{A}.
+\par For completeness we provide the formulas, which describe expression levels for \emph{chase}-experiments.
+In this case, we assume that no synthesis of labelled RNA occurs after labelling period $t_L$:
+\begin{align}
+ r_\text{T}&=\mu\\
+ r_\text{L}&=\mu \left(1-e^{-dt_\text{L}}\right)e^{-dt_\text{C}}\\
+ r_\text{L}&=\mu \left(1-\left(1-e^{-dt_\text{L}}\right)e^{-dt_\text{C}}\right),
+\end{align}
+where $t_\text{C}$ stands for the longitude of the chase period.
