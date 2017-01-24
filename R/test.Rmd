@@ -9,7 +9,7 @@ output:
 ```{r}
 library(pulseR)
 replicateNum <- 3
-time <- 1
+time <- 12
 geneNum <- 100
 set.seed(259)
 ```
@@ -27,7 +27,7 @@ Let's generate `r replicateNum` replicates for every condition for a single time
 formulas <- MeanFormulas(
   total = mu,
   lab   = mu * (1 - exp(-d * time)),
-  flow  = mu * exp(-d * time)
+  unlab = mu * exp(-d * time)
 )
 conditions <- data.frame(condition = rep(names(formulas), each=replicateNum), time=time)
 knitr::kable(conditions)
@@ -44,7 +44,7 @@ conditions_known <- data.frame(condition = t$conditions)
 fractions <- factor(conditions_known$condition)
 par <- list(size = 1e2)
 par$individual_params <- data.frame(mu = 10^runif(geneNum, 0, 6),
-                                    d = -log(runif(geneNum, .1, .9)))
+                                    d = -log(runif(geneNum, .1, .9))/12)
 rownames(par$individual_params) <- paste0("gene_", 1:geneNum)
 
 par$fraction_factors <- 1 * (1:(length(levels(fractions)) - 1))
@@ -67,7 +67,7 @@ pd <- PulseData(
 par2 <- par
 guess <-  apply(counts[, conditions$condition == "total"], 1, mean)
 par2$individual_params$mu <- guess
-par2$individual_params$d <- runif(geneNum,0,5)
+par2$individual_params$d <- runif(geneNum,0,5)/time
 par2$size <- 1e4
 par2$fraction_factors <- rep(1, length(par$fraction_factors))
 
@@ -94,14 +94,14 @@ library(cowplot)
 cols <- rep(pd$fraction[], each=dim(pd$count_data)[1])
 colsSamples <- rep(colnames(pd$count_data[,]), each=dim(pd$count_data)[1])
 q <- qplot(
-  x=as.vector(pr$predictions[,] + .5),
-  y=as.vector(pd$count_data[,] + .5),
+  y=as.vector(pr$predictions[,] + .5),
+  x=as.vector(pd$count_data[,] + .5),
   #col=colsSamples,
   log = 'xy',
-  ylab = 'raw',
-  xlab = 'prediction',
-  size=I(.2), facets=~cols 
-  )+ theme_minimal() +
+  xlab = 'raw',
+  ylab = 'prediction',
+  size=I(.2),
+  facets = ~ cols) + 
   geom_abline(color="red", size=I(.1))
 q
 save_plot(filename = "../paper/fig/predictions.tiff", 
