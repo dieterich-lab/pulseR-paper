@@ -8,7 +8,7 @@ output:
 library(pulseR)
 replicateNum <- 3
 time <- 12
-geneNum <- 100
+geneNum <- 1000
 set.seed(259)
 ```
 
@@ -42,6 +42,7 @@ formulas_known <- t$formulas
 conditions_known <- data.frame(condition = t$conditions)
 
 fractions <- factor(conditions_known$condition)
+fractions <- relevel(fractions, "total.12")
 par <- list(size = 1e2)
 par$individual_params <- data.frame(mu = 10^runif(geneNum, 0, 6),
                                     d = -log(runif(geneNum, .1, .9))/12)
@@ -65,7 +66,7 @@ pd <- PulseData(
 ```{r cache=FALSE}
 
 par2 <- par
-guess <-  apply(counts[, conditions$condition == "total"], 1, mean)
+guess <-  apply(counts[, conditions$condition == "total"], 1, mean) + 1
 par2$individual_params$mu <- guess
 par2$individual_params$d <- runif(geneNum,0,5)/time
 par2$size <- 1e4
@@ -82,6 +83,7 @@ options <- list(
 )
 options$parscales <- c(1e5,1)
 
+pd$fraction <- relevel(pd$fraction, ref="total.12")
 fit <- fitModel(pd, par2, options)
 ```
 ```{r}
@@ -139,17 +141,17 @@ q_mu <- qplot(
 delta <- par$individual_params - fit$par$individual_params
 delta_d <- qplot(
   x = par$individual_params$mu,
-  y = abs(delta$d),
-  log = 'x',
+  y = abs(delta$d)/par$individual_params$d,
+  log = 'xy',
   #main="d"
   main="degradation"
   ) + 
   xlab(expression(mu)) + 
-  ylab("error")
+  ylab("rel. error")
 delta_mu <- qplot(
   x = par$individual_params$mu,
   y = abs(delta$mu) / par$individual_params$mu,
-  log = 'x',
+  log = 'xy',
   #main=expression(mu)
   main="expression"
   ) + 

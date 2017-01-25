@@ -33,7 +33,17 @@ which are sampled from random number generator.
 Usually concentration of RNA in the samples is normalised before the
 sequencing procedure \citep{}. This introduces a bias, which 
 we model by fraction coefficients in section~\ref{subsec:normalisation}. 
-For the data set we 
+For this data set,  the fraction-specific normalisation factors are 
+$n_\text{total}$=1 ({reference fraction}),
+$n_\text{label}$=2,
+$n_\text{unlab}$=3.
+\par 
+On the basis of this parameters,  we sampled read counts from the NB distribution 
+with the dispersion parameter $\alpha=100$, \cite{}, in 3 replicates for 
+every fraction ($(\text{total, label, unlab})\times(\text{replicates 1,2,3})$).
+Using this simulated count data,  we evaluated the performance of the 
+\verb|pulseR| package.
+
 
 \begin{figure}
  \includegraphics[width=\linewidth]{fig/predictions}

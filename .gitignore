@@ -1,2 +1,6 @@
 paper/*.backup
 .Rproj.user
+*.log
+*.aux
+*.bbl
+*.blg
