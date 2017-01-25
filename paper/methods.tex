@@ -73,7 +73,7 @@ We normalise the samples in two stages:
 \begin{enumerate}
 \item inside one fraction,
 e.g. between samples corresponding to ``labelled, 12 hr'' measurement
-\item between the fraction, 
+\item between the fractions, 
 e.g. how read numbers in the total fraction relate to the read numbers in 
 ``labelled, 12hr''.
 \end{enumerate}
@@ -95,15 +95,44 @@ using spike-in read numbers:
  s_j = \underset{i \in \text{spike-ins}}{\mathrm{median}}
  \frac{K_{ij}}{\underset{f \in F}{\text{geometric mean }K_{if}}}.
 \end{equation}
+No between-fraction normalisation is needed in this case, since RNA quantities
+in different fractions can be related via spike-in data only.
 \par
-For between-fraction normalisation we introduce fraction-specific normalisation 
-coefficients $n_f$ as a model parameters, 
-e.g. $n_\text{total}$ and $n_\text{label-12hr}$.
-Finally, the mean $m_{ij}$ of the read number distribution is  as:
+For between-fraction normalisation, we introduce fraction-specific 
+coefficients $n_f$ as model parameters, 
+e.g. $n_\text{total}$ and $n_\text{label-12hr}$. The parameter values are identified
+during the fitting procedure (next section).
+\par
+Finally, the mean $m_{ij}$ of the read number distribution is factorised as:
 \begin{equation}
  m_{ij} = \text{[inside-fraction]}\times\text{[between-fractions]}\times
  r_{if} = s_jn_fr_{if},
  \end{equation}
 where $r_{if}$ stands for the expression level of the gene $i$ in a fraction $f$, e.g.
-$r_L$ from the eq.~\ref{eq:labelled}.
+$r_L$ from the eq.~\ref{eq:labelled}. 
+\par
+An additional relations between fractions can be introduced in the form 
+of cross-contamination coefficient. For example,
+if the labelled fraction $r_\text{L}$ is assumed to be 
+contaminated with the unlabelled one $r_\text{U}$,
+the expected read number is modified as
+\begin{equation}
+  r^*_\text{L} = (1-c)r_\text{L} + cr_\text{U}
+ \end{equation}
+\par  Such normalisation approach may look overcomplicated 
+from one hand. However, the inside-fraction normalisation helps to reduce the number
+of model parameters. 
 \subsubsection{Fitting}
+In order to estimate parameters of the model, we use the maximum-likelihood method.
+We separated the fitting procedure into several simpler steps:
+\begin{enumerate}
+ \item fitting of gene-specific parameters (e.g. degradation rate and expression level);
+ \item fitting of parameters shared between fractions (e.g. cross-contamination coefficient); 
+ \item fitting of the between-sample normalisation factors $n_f$
+ (if no spike-ins are provided) and estimation of the dispersion parameter $\alpha$.
+\end{enumerate}
+We repeat the steps 1-3 until
+user-specified convergence criteria is not met.
+ Since gene-gene interactions are not considered by the model, it is possible to 
+ fit this parameters independently in parallel. 
+
