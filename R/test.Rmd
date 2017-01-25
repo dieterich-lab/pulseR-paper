@@ -47,7 +47,7 @@ par$individual_params <- data.frame(mu = 10^runif(geneNum, 0, 6),
                                     d = -log(runif(geneNum, .1, .9))/12)
 rownames(par$individual_params) <- paste0("gene_", 1:geneNum)
 
-par$fraction_factors <- 1 * (1:(length(levels(fractions)) - 1))
+par$fraction_factors <- 1 * (2:(length(levels(fractions))))
 ```
 
 ```{r}
@@ -62,7 +62,7 @@ pd <- PulseData(
     fractions  = ~condition+time)
 ```
 
-```{r cache=TRUE}
+```{r cache=FALSE}
 
 par2 <- par
 guess <-  apply(counts[, conditions$condition == "total"], 1, mean)
@@ -108,11 +108,11 @@ q
 save_plot(filename = "../paper/fig/predictions.tiff", 
           plot = q,
           base_height = 3,
-          base_width = 6)
+          base_width = 7)
 save_plot(filename = "../paper/fig/predictions.pdf", 
           plot = q,
           base_height = 3,
-          base_width = 6)
+          base_width = 7)
 ```
 
 ```{r, fig.height=6, fig.width=6}
