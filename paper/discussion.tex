@@ -29,9 +29,9 @@ used an approach which was previously applied to
  The total fraction $T$ is related to the labelled $L$ and unlabelled $U$ ones as
  $T = aU + bL$, where $a$ and $b$ are unknown.
  Ordinary regression recovers the coefficients $a$ and $b$. However,
- such procedure results in unrealistic fraction ratios, and \citet{schwanhausser2011global}
- had to exclude certain genes from the analysis.
- \item CHANGE ME total least-squares \citep{miller2011dynamic}
+ such procedure can results in unrealistic fraction ratios, and \citet{schwanhausser2011global}
+ had to exclude certain genes from the analysis. 
+ The total least-squares fitting is an another alternative \citep{miller2011dynamic, schwalb2012measurement}.
  \item \textbf{normalisation coupled with model fitting:}
  coefficients can be introduced as model parameters. Their values are
  recovered by MLE  together with other parameters \citep{eser2016determinants, de2015inspect}.
@@ -50,13 +50,20 @@ normal distribution assumption, which was applied earlier to the microarray data
 successfully applied to short pulse-labelling in \citep{eser2016determinants,
 schwalb2016tt}.\\
 \textbf{The normal distribution} is implemented in \verb|INSPEcT| R package \citep{de2015inspect},
-\verb|DRiLL| software \citep{rabani2014high}, \verb|HALO| Java framework \citep{friedel2010halo} and 
-\verb|DTA/cDTA| R packages \citep{schwalb2012measurement}. Although such assumptions 
+\verb|DRiLL| software \citep{rabani2014high}. 
+Although such assumptions 
 were applied to RNA-seq data previously \citep{}, we think that this approach suits better 
-for microarray data analysis.
+for microarray data analysis.\\
+\verb|DTA| R package \citep{schwalb2012measurement} is designed to
+estimate kinetic rates from a single time point. The values for 
+total, labelled and unlabelled fractions are treated as known parameters, and 
+no statistical model is assumed. A similar approach is implemented in 
+\verb|HALO| Java framework \citep{friedel2010halo}. 
 
-
-
+\subsubsection*{Mathematical model}
+In our package implementation, we leave freedom for user to formulate a mathematical
+model for the data. In the \emph{methods} section we describe a model, which 
+does not include RNA maturation.
 
 
 - no delays in the model (transcr-transl)					

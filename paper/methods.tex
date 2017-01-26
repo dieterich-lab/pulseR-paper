@@ -97,7 +97,7 @@ If spike-in molecules are present in the samples, then one computes $s_{j}$
 using spike-in read numbers: 
 \begin{equation}
  s_j = \underset{i \in \text{spike-ins}}{\mathrm{median}}
- \frac{K_{ij}}{\underset{f \in F}{\text{geometric mean }K_{if}}}.
+ \frac{K_{ij}}{\underset{f \in \text{all samples}}{\text{geometric mean }K_{if}}}.
 \end{equation}
 No between-fraction normalisation is needed in this case, since RNA quantities
 in different fractions can be related via spike-in data only.
