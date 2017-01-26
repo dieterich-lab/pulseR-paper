@@ -1,2 +1,40 @@
+\subsection{Comparison to existing approaches}
+The published so far approaches are different in terms of 
+data normalisation, statistical model and underlying mathematical model of the 
+RNA metabolism.
+\subsubsection*{Normalisation}
+The normalisation step aims to uncover relations between samples, which can 
+be different in sequencing depth, represent different fractions and were subjected
+different protocols of preparation. 
+Spike-in molecules, which one adds before fraction separation step,
+allow to simplify the fitting procedure. In this case, estimation of fraction-specific 
+coefficients and cross-contamination rates is separated from fitting of gene-specific parameters
+\citep{schwalb2016tt,neymotin2014determination}.
+\par 
+However, it comes with the price of complication of the exprerimental procedure,
+because one needs to synthesis labelled spike-ins molecules \citep{}.
+Alternative approach is to determine fraction- or sample- specific 
+normalising coefficients on the basis of the gene expression data only.
+ In most cases, the analysis is performed on transformed raw read counts, i.e.
+ to RPKMs (Reads Per Kilobase of transcript per Million).
+\begin{itemize}
+ \item 
+\textbf{normalisation to RNA quantities:}  the total amount of 
+RNA  is measured for every fraction. This ratios of RNA quantity between 
+different fractions are used as fraction-specific coefficients \citep{rabani2011metabolic}.
+\item 
+\textbf{normalisation via regression:} \citet{schwanhausser2011global} 
+used an approach which was previously applied to 
+ the microarray data in \citep{dolken2008high}.
+ The total fraction $T$ is related to the labelled $L$ and unlabelled $U$ ones as
+ $T = aU + bL$, where $a$ and $b$ are unknown.
+ Ordinary \citep{schwanhausser2011global} or recovers
+ the coefficients $a$ and $b$. 
+ \item CHANGE ME total least-squares \citep{miller2011dynamic}
+ \item 
+\end{itemize}
+
+
+
 
 - no delays in the model (transcr-transl)					
