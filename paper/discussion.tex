@@ -28,11 +28,30 @@ used an approach which was previously applied to
  the microarray data in \citep{dolken2008high}.
  The total fraction $T$ is related to the labelled $L$ and unlabelled $U$ ones as
  $T = aU + bL$, where $a$ and $b$ are unknown.
- Ordinary \citep{schwanhausser2011global} or recovers
- the coefficients $a$ and $b$. 
+ Ordinary regression recovers the coefficients $a$ and $b$. However,
+ such procedure results in unrealistic fraction ratios, and \citet{schwanhausser2011global}
+ had to exclude certain genes from the analysis.
  \item CHANGE ME total least-squares \citep{miller2011dynamic}
- \item 
+ \item \textbf{normalisation coupled with model fitting:}
+ coefficients can be introduced as model parameters. Their values are
+ recovered by MLE  together with other parameters \citep{eser2016determinants, de2015inspect}.
+ Although being harder to implement, this approach allows parameters to influence 
+ on each other, and hence, can result in  better estimations.
 \end{itemize}
+Our package can be used either with spike-in or spike-in free data.
+Additional known or unknown shared parameters can be introduced by a user as well, 
+which allows high flexibility in the experiment analysis.
+
+\subsubsection*{Statistical model}
+\textbf{The NB distribution} is known to describe well the count data in RNA-seq 
+experiments \citep{robinson2007moderated}. This encourages to use it over 
+normal distribution assumption, which was applied earlier to the microarray data sets
+\citep{miller2011dynamic}. In our package, we implement NB assumptions, which were
+successfully applied to short pulse-labelling in \citep{eser2016determinants,
+schwalb2016tt}.\\
+\textbf{The normal distribution} is implemented in \verb|INSPEcT| R package \citep{de2015inspect},
+\verb|DRiLL| software \citep{rabani2014high} and \verb|HALO| Java framework \citep{friedel2010halo}.
+
 
 
 
