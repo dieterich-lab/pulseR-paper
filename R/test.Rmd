@@ -9,7 +9,7 @@ library(pulseR)
 replicateNum <- 3
 time <- 12
 geneNum <- 1000
-set.seed(259)
+set.seed(258)
 ```
 
 # Generate test data
@@ -125,7 +125,8 @@ q_d <- qplot(
   ylab = "fitted",
   #main="d"
   main="degradation"
-  )
+  )+
+  geom_abline(color="red", size=I(1))
 
 q_mu <- qplot(
   y = fit$par$individual_params$mu,
@@ -136,8 +137,10 @@ q_mu <- qplot(
   #main=expression(mu)
   main="expression"
   
-)
+)+
+  geom_abline(color="red", size=I(1))
 
+  
 delta <- par$individual_params - fit$par$individual_params
 delta_d <- qplot(
   x = par$individual_params$mu,
@@ -147,7 +150,8 @@ delta_d <- qplot(
   main="degradation"
   ) + 
   xlab(expression(mu)) + 
-  ylab("rel. error")
+  ylab("rel. error") +
+  stat_smooth()
 delta_mu <- qplot(
   x = par$individual_params$mu,
   y = abs(delta$mu) / par$individual_params$mu,
@@ -156,7 +160,8 @@ delta_mu <- qplot(
   main="expression"
   ) + 
   xlab(expression(mu)) + 
-  ylab("rel. error")
+  ylab("rel. error") +
+  stat_smooth()
 
 q <- plot_grid(q_mu,
                q_d,
