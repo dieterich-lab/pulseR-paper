@@ -13,13 +13,13 @@ has powerfull plotting features \citep{rlang}.
  $r_\text{L}\sim \mu e^{-dt}$, (section~\ref{subsec:kinetics}).
  \item spike-ins, if relevant
 \end{itemize}
-The package utilizes so-called \emph{non-standard evaluation},
+The package utilizes so-called \emph{computing on the language},
 a feature of the \emph{R} language \citep{team2000r}.
 This allows to handle arbitrary formulas, which the user supplies for 
 the mean gene expression levels. Hence, no manual 
 implementation for the likelihood functions is necessary and the 
 formulas are needed to defined only once.
-\subsection{Evaluation on simulated data}
+\subsection{Evaluation using simulated data}
 To demonstrate the analysis workflow, we generated a data 
 set on the basis of the pulse-model, introduced in the section~2.
 \begin{align}
@@ -39,18 +39,31 @@ $n_\text{label}$=2,
 $n_\text{unlab}$=3.
 \par 
 On the basis of this parameters,  we sampled read counts from the NB distribution 
-with the dispersion parameter $\alpha=100$, \cite{}, in 3 replicates for 
+with the dispersion parameter $\alpha=0.01$,  in 3 replicates for 
 every fraction ($(\text{total, label, unlab})\times(\text{replicates 1,2,3})$).
-Using this simulated count data,  we evaluated the performance of the 
+Using this simulated count data,  we evaluated the performance of the developed
 \verb|pulseR| package.
-
-
+\par
+To improve the fitting procedure, we provided the initial guess for the expression level
+on the basis of the median read count in the total fraction.
+The initial values for the degradation rates were chosen as random numbers.
+The predictions for every gene in three different fractions demonstrate
+good quality of fitting, fig.~\ref{fig:predictions}. The relative errors of
+the parameter fits is worse for the lower expressed genes, fig.~\ref{fig:errors}.
+That is expected to occur, because the dispersion of the NB-distributed values
+is higher for the data with a lower mean.
 \begin{figure}
  \includegraphics[width=\linewidth]{fig/predictions}
- \caption{Model predictions.}
+ \caption{Comparison of the model \emph{predictions} to the generated 
+ \emph{raw counts} for 3 different fractions (total, labelled, unlabelled)
+ at after 12 hr of pulse-experiment.}
+ \label{fig:predictions}
 \end{figure}
 
 \begin{figure}
  \includegraphics[width=\linewidth]{fig/parameters}\\
- \caption{Parameter misprediction.}
+ \caption{Comparison of the fitted and true parameter values (A, B) and 
+ relative errors in the parameter fit (C, D) for the expression level $\mu$ 
+ and the degradation rate $d$.}
+ \label{fig:errors}
 \end{figure}
