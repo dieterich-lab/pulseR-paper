@@ -1,7 +1,7 @@
 Formula creation
 ================
 Uvarovskii Alexey
-2017-02-16
+2017-02-17
 
 In the `pulseR` package, one must provide formulas which estimate the amount of RNA in the samples depending on the condition. The fitting procedure optimise parameter values in such a way, that the likelihood of the observed read numbers in the samples is maximal, see [MLE](https://en.wikipedia.org/wiki/Maximum_likelihood_estimation).
 

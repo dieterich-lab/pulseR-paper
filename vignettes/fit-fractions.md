@@ -1,7 +1,7 @@
 PulseR workflow
 ================
 Alexey Uvarovskii
-2017-02-16
+2017-02-17
 
 ``` r
 library(pulseR)
@@ -138,4 +138,4 @@ plot(pr$predictions, pd$count_data, pch=16, cex=.3, log='xy')
     ## Warning in xy.coords(x, y, xlabel, ylabel, log): 35 y values <= 0 omitted
     ## from logarithmic plot
 
-![](/home/alex/prj/pulseR-paper/vignettes/fit-fractions_files/figure-markdown_github/unnamed-chunk-12-1.png)
+![](fit-fractions_files/figure-markdown_github/unnamed-chunk-12-1.png)
