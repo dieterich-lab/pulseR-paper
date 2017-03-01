@@ -73,7 +73,7 @@ pd <- PulseData(
 )
 ```
 
-It is important to understand, how the data are normalised. To reduce parameter number, we use the same normalisation as in DESeq package for samples from the *same fraction*. Strictly, we define *fractions* as sets of samples, which have different amounts of RNA, estimated by the model.
+It is important to understand, how the data are normalised. To reduce parameter number, we use the same normalisation as in the DESeq package for samples from the *same fraction*. Strictly speaking, we define *fractions* as sets of samples, which have different amounts of RNA, estimated by the model.
 
 ### Fitting options
 
@@ -114,7 +114,7 @@ The function `fitModel` accept the PulseData object, initial guess for the param
 
 ``` r
 opts <- setTolerance(params = 1e-3,
-                     fraction_factors = 1e-2,
+                     normFactors = 1e-2,
                      options = opts)
 result <- fitModel(pd, par, opts)
 ```
