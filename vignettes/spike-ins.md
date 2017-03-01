@@ -8,10 +8,6 @@ library(pulseR)
 attach(pulseRSpikeinsData)
 ```
 
-    ## The following objects are masked from pulseRFractionData:
-    ## 
-    ##     conditions, counts, formulaIndexes, formulas, par
-
 Prepare a data set and conditions
 ---------------------------------
 
@@ -166,7 +162,7 @@ Optimisation procedure may depend on the initial parameter values. A function `i
 -   manual values by the user
 
 ``` r
-par <- initParameters(par, c("a", "b"), pulseData = pd, options = opts)
+initPars <- initParameters(par, c("a", "b"), pulseData = pd, options = opts)
 ```
 
 Fitting
@@ -180,7 +176,7 @@ The function `fitModel` accept the PulseData object, initial guess for the param
 opts <- setTolerance(params = 1e-3,
                      normFactors = 1e-2,
                      options = opts)
-result <- fitModel(pd, par, opts)
+result <- fitModel(pd, initPars, opts)
 ```
 
 ``` r
@@ -196,5 +192,3 @@ plot(
   ylab = "experiment"
   )
 ```
-
-![](spike-ins_files/figure-markdown_github/unnamed-chunk-11-1.png)

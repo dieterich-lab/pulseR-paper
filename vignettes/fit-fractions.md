@@ -97,8 +97,8 @@ Optimisation procedure may depend on the initial parameter values. A function `i
 -   manual values by the user
 
 ``` r
-par <- list(p = pulseRFractionData$par$p)
-par <- initParameters(par, c("a", "b"), pulseData = pd, options = opts)
+initPars <- list(p = pulseRFractionData$par$p)
+initPars <- initParameters(initPars, c("a", "b"), pulseData = pd, options = opts)
 ```
 
 ``` r
@@ -116,7 +116,7 @@ The function `fitModel` accept the PulseData object, initial guess for the param
 opts <- setTolerance(params = 1e-3,
                      normFactors = 1e-2,
                      options = opts)
-result <- fitModel(pd, par, opts)
+result <- fitModel(pd, initPars, opts)
 ```
 
 ``` r
