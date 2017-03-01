@@ -1,7 +1,7 @@
 PulseR workflow
 ================
 Alexey Uvarovskii
-2017-02-17
+2017-03-01
 
 ``` r
 library(pulseR)
@@ -16,71 +16,61 @@ Prepare a data set and conditions
 Let us have a labelling experiment with several time points
 
 ``` r
-replicateNum <- 3
-time <- c(4,8,12)
-geneNum <- 100
+attach(pulseRFractionData)
 ```
 
 ``` r
-formulas <- MeanFormulas(
-  total = mu,
-  lab   = mu * (1 - exp(-d * time))
-)
+formulas <- MeanFormulas(A = a * p,
+                         B =  a * b ^ time,
+                         C = a * (1 - b ^ time))
 ```
 
-We create a condition matrix with two columns: the first is the condition of samples ("total" or "lab"), the second is the time point.
+Here is the condistion matrix for our data set:
 
 ``` r
-conditions <- expand.grid(condition = names(formulas), time = time)
-conditions <- conditions[rep(seq_along(conditions$time),
-                             each = replicateNum),]
-rownames(conditions) <- paste0("sample_", seq_along(conditions$condition))
-head(conditions)
+conditions
 ```
 
-    ##          condition time
-    ## sample_1     total    4
-    ## sample_2     total    4
-    ## sample_3     total    4
-    ## sample_4       lab    4
-    ## sample_5       lab    4
-    ## sample_6       lab    4
-
-### Generate artificial data
-
-This section is just for reproducibility, you can easily proceed to the next one.
-
-Create the parameters for 100 genes:
-
-``` r
-truePar <- list(size = 1e2)
-truePar$params <- data.frame(mu = 10 ^ runif(geneNum, 0, 5),
-                         d = -log(runif(geneNum, .1, .9)) / 12)
-rownames(truePar$params) <- paste0("gene_", 1:geneNum)
-
-fractions <- formula(~ time + condition)
-fraction_names <- levels(codeFractions(conditions, fractions))
-truePar$fraction_factors <- seq_along(fraction_names)
-```
-
-Sample read counts from the negative binomial distribution:
-
-``` r
-counts <- generateTestDataFrom(formulas, 
-                               truePar,
-                               conditions,
-                               fractions)
-```
+    ##           condition time
+    ## sample_1     A_samp    1
+    ## sample_2     A_samp    2
+    ## sample_3     A_samp    3
+    ## sample_4     B_samp    1
+    ## sample_5     B_samp    2
+    ## sample_6     B_samp    3
+    ## sample_7     C_samp    1
+    ## sample_8     C_samp    2
+    ## sample_9     C_samp    3
+    ## sample_10    A_samp    1
+    ## sample_11    A_samp    2
+    ## sample_12    A_samp    3
+    ## sample_13    B_samp    1
+    ## sample_14    B_samp    2
+    ## sample_15    B_samp    3
+    ## sample_16    C_samp    1
+    ## sample_17    C_samp    2
+    ## sample_18    C_samp    3
+    ## sample_19    A_samp    1
+    ## sample_20    A_samp    2
+    ## sample_21    A_samp    3
+    ## sample_22    B_samp    1
+    ## sample_23    B_samp    2
+    ## sample_24    B_samp    3
+    ## sample_25    C_samp    1
+    ## sample_26    C_samp    2
+    ## sample_27    C_samp    3
 
 Create `PulseData` object
 -------------------------
 
 ``` r
 pd <- PulseData(
-    count_data = counts,
-    conditions = conditions,
-    formulas   = formulas,
-    fractions  = ~condition+time)
+  counts = counts,
+  conditions = conditions,
+  formulas = formulas,
+  formulaIndexes = formulaIndexes,
+  groups = fractions
+)
 ```
 
 It is important to understand, how the data are normalised. To reduce parameter number, we use the same normalisation as in DESeq package for samples from the *same fraction*. Strictly, we define *fractions* as sets of samples, which have different amounts of RNA, estimated by the model.
@@ -90,9 +80,11 @@ It is important to understand, how the data are normalised. To reduce parameter 
 Now we set options for fitting. It is important to provide boundaries for the optimal parameter search:
 
 ``` r
-opts <- setBoundaries(params = list(mu = c(.5,1e6),
-                                    d = c(1e-8,1)),
-                      fraction_factors = c(.1,10))
+opts <- setBoundaries(list(
+  a = c(.1, 1e6),
+  b = c(.01, .99),
+  normFactors = c(.1, 50)
+))
 ```
 
 For other possible parameters please see "set" functions in the package documentation (`setBoundaries, setTolerance, setFittingOptions`).
@@ -105,8 +97,8 @@ Optimisation procedure may depend on the initial parameter values. A function `i
 -   manual values by the user
 
 ``` r
-par <- initParameters(pulseData = pd,
-                      options = opts)
+par <- list(p = pulseRFractionData$par$p)
+par <- initParameters(par, c("a", "b"), pulseData = pd, options = opts)
 ```
 
 ``` r
@@ -121,8 +113,6 @@ You can specify other options as the number of cores or error tolerance threshol
 The function `fitModel` accept the PulseData object, initial guess for the parameters values and fitting options.
 
 ``` r
-opts$cores <- 2
-
 opts <- setTolerance(params = 1e-3,
                      fraction_factors = 1e-2,
                      options = opts)
@@ -132,10 +122,15 @@ result <- fitModel(pd, par, opts)
 ``` r
 pr <- predictExpression(pd, result)
 
-plot(pr$predictions, pd$count_data, pch=16, cex=.3, log='xy')
+plot(
+  x = as.vector(pr$predictions),
+  y = as.vector(pd$counts),
+  pch = 16,
+  cex = .3,
+  log = 'xy',
+  xlab = "fitted",
+  ylab = "experiment"
+  )
 ```
 
-    ## Warning in xy.coords(x, y, xlabel, ylabel, log): 35 y values <= 0 omitted
-    ## from logarithmic plot
-
-![](fit-fractions_files/figure-markdown_github/unnamed-chunk-12-1.png)
+![](fit-fractions_files/figure-markdown_github/unnamed-chunk-10-1.png)
