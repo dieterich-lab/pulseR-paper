@@ -67,3 +67,20 @@ does not include RNA maturation.
 
 
 - no delays in the model (transcr-transl)					
+
+
+
+\begin{table}
+ \begin{tabular}{|c|c|c|c|c|c|}\hline
+                        &pulseR &DRiLL  &INSPEcT&DTA    &HALO       \\\hline
+ stat.model             & NB    &normal&normal  & normal&normal     \\\hline                         
+ spike-ins              & yes   & no   &  no    &  no   & no        \\\hline               
+ several time points    & yes   & yes  &  yes   &  no   & no        \\\hline                    
+ ODE integration        & no$^1$& yes  &  yes   &  no   & no        \\\hline 
+ experiment flexibility & yes   & no   &  no    &  no   & no        \\\hline 
+ variable rates in time & no    & yes  &  yes   &  no   & no        \\\hline 
+ can handle uridine bias& yes   & no   &  no    &  yes  & no        \\\hline 
+ model RNA processing   & no$^2$& yes  &  yes   &  no   & no        \\\hline 
+ \end{tabular}
+
+\end{table}
