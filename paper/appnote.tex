@@ -1,3 +1,4 @@
+\par The aim of the package is to simplify the procedure of the parameter estimating.
 RNA dynamics can be described by ordinary differential equations,
 which have simple analytic solution 
 in the simplest cases such as degradation or synthesis with 
@@ -10,14 +11,41 @@ during pulse-experiment the labelled fraction will evolve as
  [\text{Labelled}] \sim \mu (1 - e^{-dt}),
 \end{equation}
 where $d$ is the degradation rate.
-\par The aim of the package is to simplify the procedure of the parameter estimating.
+\par 
 Usually, the most interest is focused on the gene-specific parameters ($d$ and $\mu$
 in the example above). However, some parameters can be shared between all genes and
 our package is able to treat them accordingly. This can be useful, if 
 one would like to take into account difference in the uridine content, since
 it can introduce a bias in the estimations, \citep{miller2011dynamic,
 schwalb2012measurement}. In this case, the RNA abundances are multiplied by 
-a factor which depends on the number of uridine bases in the transcript $\#u$,
-$(1 − (1 − p)^{\#u})$, where $p$ is the probability of an uridine to be replcaed
-by 4sU.
+a factor which depends on the number of uridine bases in the transcript $\text{\#}u$,
+$(1-(1-p)^{\text{\#}u})$, where $p$ is the probability of an uridine to be replaced
+by a 4sU and $p$ is shared between all genes.
+\par 
+Besides the parameters of the interest, one must estimate how different fractions
+and samples relate to each other. One reason for this is a variability of the sequencing
+depth. In addition, amounts of labelled and unlabelled RNA in fractions is changed due to 
+the pull-out procedure.
+This allows to estimate cross-contamination rates as well. For example, 
+if the labelled fraction consists of the labelled RNA $L_{ij}$ and the unlabelled RNA
+ $U_{ij}$ molecules, for a sample $i$ and gene $j$ it will be
+\begin{equation}
+ [\text{labelled fraction}]_{ij}  = \alpha_{i} L_{ij} + \beta_{i} U_{ij}
+\end{equation}
+If spike-ins present in the probes (recommended), the normalisation coefficients 
+are estimated directly as in the DESeq package, \citet{anders2010differential}. 
+The user must provide lists of spike-ins which are  specific for different types of RNA, 
+i.e. in order to estimate $\alpha_i$ and $\beta_i$ separately in our example.
+\par
+In case of spike-ins-free experiments, 
+it can be possible to derive the normalisation factors, 
+because the system is overdetermined (given a high number of genes).
+The user then need to specify how to split samples into the groups.
+Inside the groups samples are normalised for sequencing rate $d_i$ by
+the DESeq procedure.
+Normalisation between the groups is performed during the fitting procedure, 
+and this coefficients are shared between the samples from the same group:
+\begin{equation}
+ [\text{labelled fraction}]_{ij}  = d_i(\alpha L_{ij} + \beta U_{ij})
+\end{equation}
 
