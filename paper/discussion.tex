@@ -3,85 +3,27 @@ The published so far approaches are different in terms of
 data normalisation, statistical model and underlying mathematical model of the 
 RNA metabolism.
 \subsubsection*{Normalisation}
-The normalisation step aims to uncover relations between samples, which can 
-be different in sequencing depth, represent different fractions and were subjected
-different protocols of preparation. 
-Spike-in molecules, which one adds before fraction separation step,
-allow to simplify the fitting procedure. In this case, estimation of fraction-specific 
-coefficients and cross-contamination rates is separated from fitting of gene-specific parameters
-\citep{schwalb2016tt,neymotin2014determination}.
-\par 
-However, it comes with the price of complication of the exprerimental procedure,
-because one needs to synthesis labelled spike-ins molecules \citep{}.
-Alternative approach is to determine fraction- or sample- specific 
-normalising coefficients on the basis of the gene expression data only.
- In most cases, the analysis is performed on transformed raw read counts, i.e.
- to RPKMs (Reads Per Kilobase of transcript per Million).
-\begin{itemize}
- \item 
-\textbf{normalisation to RNA quantities:}  the total amount of 
-RNA  is measured for every fraction. This ratios of RNA quantity between 
-different fractions are used as fraction-specific coefficients \citep{rabani2011metabolic}.
-\item 
-\textbf{normalisation via regression:} \citet{schwanhausser2011global} 
-used an approach which was previously applied to 
- the microarray data in \citep{dolken2008high}.
- The total fraction $T$ is related to the labelled $L$ and unlabelled $U$ ones as
- $T = aU + bL$, where $a$ and $b$ are unknown.
- Ordinary regression recovers the coefficients $a$ and $b$. However,
- such procedure can results in unrealistic fraction ratios, and \citet{schwanhausser2011global}
- had to exclude certain genes from the analysis. 
- The total least-squares fitting is an another alternative \citep{miller2011dynamic, schwalb2012measurement}.
- \item \textbf{normalisation coupled with model fitting:}
- coefficients can be introduced as model parameters. Their values are
- recovered by MLE  together with other parameters \citep{eser2016determinants, de2015inspect}.
- Although being harder to implement, this approach allows parameters to influence 
- on each other, and hence, can result in  better estimations.
-\end{itemize}
-Our package can be used either with spike-in or spike-in free data.
-Additional known or unknown shared parameters can be introduced by a user as well, 
-which allows high flexibility in the experiment analysis.
 
 \subsubsection*{Statistical model}
-\textbf{The NB distribution} is known to describe well the count data in RNA-seq 
-experiments \citep{robinson2007moderated}. This encourages to use it over 
-normal distribution assumption, which was applied earlier to the microarray data sets
-\citep{miller2011dynamic}. In our package, we implement NB assumptions, which were
-successfully applied to short pulse-labelling in \citep{eser2016determinants,
-schwalb2016tt}.\\
-\textbf{The normal distribution} is implemented in \verb|INSPEcT| R package \citep{de2015inspect},
-\verb|DRiLL| software \citep{rabani2014high}. 
-Although such assumptions 
-were applied to RNA-seq data previously \citep{}, we think that this approach suits better 
-for microarray data analysis.\\
-\verb|DTA| R package \citep{schwalb2012measurement} is designed to
-estimate kinetic rates from a single time point. The values for 
-total, labelled and unlabelled fractions are treated as known parameters, and 
-no statistical model is assumed. A similar approach is implemented in 
-\verb|HALO| Java framework \citep{friedel2010halo}. 
-
-\subsubsection*{Mathematical model}
-In our package implementation, we leave freedom for user to formulate a mathematical
-model for the data. In the \emph{methods} section we describe a model, which 
-does not include RNA maturation.
-
-
-- no delays in the model (transcr-transl)					
-
-
 
 \begin{table}
  \begin{tabular}{|c|c|c|c|c|c|}\hline
                         &pulseR &DRiLL          &INSPEcT&DTA    &HALO       \\\hline
- stat.model             & NB    &normal,bin     &normal  & normal&normal     \\\hline                         
- spike-ins              & yes   & no            &  no    &  no   & no        \\\hline               
- several time points    & yes   & yes           &  yes   &  no   & no        \\\hline                    
- ODE integration        & no$^1$& yes           &  yes   &  no   & no        \\\hline 
- experiment flexibility & yes   & no            &  no    &  no   & no        \\\hline 
- variable rates in time & no    & yes           &  yes   &  no   & no        \\\hline 
-            uridine bias& yes   & no            &  no    &  yes  & yes       \\\hline 
-       RNA processing   & no$^2$& yes           &  yes   &  no   & no        \\\hline 
-  language              & R     &MATLAB         &  R     &  R    & Java      \\\hline 
+ stat.model             & NB    &N, BIN         &N       & N     &N      \\\hline                         
+ spike-ins              & +     &   -           &  -     &  -    & -         \\\hline               
+ several time points    & +     &    +          &  +     &  -    & -         \\\hline                    
+ experiment flexibility & +     &   -           &  -     &  -    & -         \\\hline 
+ variable rates in time &  -    &    +          &  +     &  -    & -         \\\hline 
+            uridine bias& +     &   -           &  -     &  +    & +         \\\hline 
+       RNA processing   & -     &    +          &  +     &  -    & -         \\\hline 
+  %language              & R     &MATLAB         &  R     &  R    & Java      \\\hline 
  \end{tabular}
-
+\caption{Comparison of available software for parameter estimation in 
+labelling experiments. N: normal, NB: negative binomial, BIN: binomial.
+PulseR (this paper), 
+DRiLL \citep{rabani2014high},
+INSPEcT \citep{de2015inspect},
+DTA \citep{schwalb2012measurement},
+HALO \citep{friedel2010halo}
+}
 \end{table}

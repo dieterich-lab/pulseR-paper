@@ -1,3 +1,4 @@
+\subsection{Parameter definition}
 \par The aim of the package is to simplify the procedure of the parameter estimating.
 RNA dynamics can be described by ordinary differential equations,
 which have simple analytic solution 
@@ -18,34 +19,70 @@ our package is able to treat them accordingly. This can be useful, if
 one would like to take into account difference in the uridine content, since
 it can introduce a bias in the estimations, \citep{miller2011dynamic,
 schwalb2012measurement}. In this case, the RNA abundances are multiplied by 
-a factor which depends on the number of uridine bases in the transcript $\text{\#}u$,
-$(1-(1-p)^{\text{\#}u})$, where $p$ is the probability of an uridine to be replaced
-by a 4sU and $p$ is shared between all genes.
+a probability that at least one uridine in the molecule is substituted by 4sU,
+\begin{equation}
+P(\text{\#u}, p) = 1-(1-p)^{\text{\#}u},
+\end{equation}
+where $p$ is the probability of a single replacement and  
+ $\text{\#}u$ is the number of uridine bases in the molecule.
 \par 
+\subsection{Normalisation}
 Besides the parameters of the interest, one must estimate how different fractions
 and samples relate to each other. One reason for this is a variability of the sequencing
 depth. In addition, amounts of labelled and unlabelled RNA in fractions is changed due to 
 the pull-out procedure.
 This allows to estimate cross-contamination rates as well. For example, 
 if the labelled fraction consists of the labelled RNA $L_{ij}$ and the unlabelled RNA
- $U_{ij}$ molecules, for a sample $i$ and gene $j$ it will be
+ $U_{ij}$ molecules, for a sample $j$ and gene $i$ it will be
 \begin{equation}
- [\text{labelled fraction}]_{ij}  = \alpha_{i} L_{ij} + \beta_{i} U_{ij}
+ [\text{labelled fraction}]_{ij}  = \alpha_{j} L_{ij} + \beta_{j} U_{ij}
 \end{equation}
 If spike-ins present in the probes (recommended), the normalisation coefficients 
 are estimated directly as in the DESeq package, \citet{anders2010differential}. 
 The user must provide lists of spike-ins which are  specific for different types of RNA, 
-i.e. in order to estimate $\alpha_i$ and $\beta_i$ separately in our example.
+i.e. in order to estimate $\alpha_j$ and $\beta_j$ separately in our example.
 \par
 In case of spike-ins-free experiments, 
 it can be possible to derive the normalisation factors, 
 because the system is overdetermined (given a high number of genes).
 The user then need to specify how to split samples into the groups.
-Inside the groups samples are normalised for sequencing rate $d_i$ by
+Inside one group (e.g. labelled fraction after 2hr of pulse) samples are normalised for sequencing rate $d_i$ by
 the DESeq procedure.
 Normalisation between the groups is performed during the fitting procedure, 
 and this coefficients are shared between the samples from the same group:
 \begin{equation}
- [\text{labelled fraction}]_{ij}  = d_i(\alpha L_{ij} + \beta U_{ij})
+ [\text{labelled fraction}]_{ij}  = d_j(\alpha L_{ij} + \beta U_{ij})
 \end{equation}
 
+\subsection*{Parameter estimation}
+We use the maximum likelihood method (MLE) to obtain parameter values.
+In RNA-seq experiments, expression level is represented by read number.
+To model such data, we assume them to follow the negative binomial (NB) distribution, 
+because the NB distribution is  shown to successfully describe over-dispersed RNA-seq data 
+\citep{robinson2007moderated}.
+The NB distribution has two parameters, mean $m$ and dispersion parameter 
+$\alpha$.
+Hence,  a read number of a gene $i$ in a sample $j$ reads
+\begin{equation}
+ K_{ij} \sim \text{NB}(m_{ij}, \alpha).
+\end{equation}
+Here we treat the  dispersion parameters $\alpha$ as  shared between all
+samples and genes, because would not be possible to infer about several parameters
+from a small number of replicates (usually, only 2 or 3 points are available).
+
+
+We separated the fitting procedure into several simpler steps:
+\begin{enumerate}
+ \item fitting of gene-specific parameters (e.g. degradation rate)
+ \item fitting of shared parameters  
+ \item fitting of the normalisation factors (if spike-in free)
+ \item estimation of the dispersion parameter 
+\end{enumerate}
+We repeat the steps 1-4 until
+user-specified convergence criteria is not met.
+ Since gene-gene interactions are not considered by the model, it is possible to 
+ fit this parameters independently in parallel. 
+
+To optimise the likelihood functions, 
+we use implementation of the {L-BFGS-U} method \citep{byrd1995limited} 
+available in the \verb|stats| R package \citep{rlang}.
