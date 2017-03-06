@@ -1,16 +1,16 @@
 Gene expression level is defined by the rates of RNA synthesis and degradation.
-Understanding the way how certain gene level is regulated in a response to
-the condition change might help to uncover the underlying mechanisms.
+Understanding how certain gene levels are regulated in a response to
+ condition changes might help to uncover the underlying control mechanisms.
 \par
-The pulse-chase experimental approach allows to study such kinetics. 
+The pulse-chase experimental approach allows to measure such kinetics. 
  In this method, tracing molecules are introduced to the medium, 
  which results in their incorporation into nascent RNA molecules.
-4sU labelling developed by \citep{dolken2008high} used to estimate 
+4sU labelling, developed by \citep{dolken2008high}, is used to estimate 
 kinetic rates of RNA metabolism in a number of studies up to date, 
-see \citep{wachutka2016measures} for review.
-This experiments generate  RNA-seq data which have discrete nature.
-However, there is no software for  parameter
-estimation in kinetic models of gene expression, which can handle 
+see \citep{wachutka2016measures} for the review.
+The  RNA-seq data generated in such experiments  have a discrete nature.
+However, there is no software available for  parameter
+estimation in kinetic models of gene expression, which is specifically designed to handle 
 count data. Here we present the \verb|pulseR| package, which allows to 
 process RNA-seq data from 4sU-labelling experiments.
 %\citep{

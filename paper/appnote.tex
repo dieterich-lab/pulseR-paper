@@ -2,42 +2,45 @@
 \par The aim of the package is to simplify the procedure of the parameter estimating.
 RNA dynamics can be described by ordinary differential equations,
 which have simple analytic solution 
-in the simplest cases such as degradation or synthesis with 
-the constant rate. In the \verb|pulseR| package,
-the user need to specify the expressions for the expected RNA abundances,
+if the degradation and synthesis rates are assumed to be constant.
+In the \verb|pulseR| package,
+a user need to specify the expressions for the mean RNA abundances,
 Alternatively, formulas can be generated using package functions for the 
-simple cases. For example, if the steady-state RNA level is $\mu$, then
-during pulse-experiment the labelled fraction will evolve as
-\begin{equation}
- [\text{Labelled}] \sim \mu (1 - e^{-dt}),
-\end{equation}
-where $d$ is the degradation rate.
+most frequent cases. 
+%For example, if the steady-state RNA level is $\mu$, then
+%during pulse-experiment the labelled fraction will evolve as
+%\begin{equation}
+% [\text{Labelled}] \sim \mu (1 - e^{-dt}),
+%\end{equation}
+%where $d$ is the degradation rate.
 \par 
-Usually, the most interest is focused on the gene-specific parameters ($d$ and $\mu$
-in the example above). However, some parameters can be shared between all genes and
-our package is able to treat them accordingly. This can be useful, if 
-one would like to take into account difference in the uridine content, since
+Although the most interest is focused on the gene-specific parameters,
+pulseR allows to introduce shared parameters.
+ This can be useful for taking into account the difference in the uridine content, since
 it can introduce a bias in the estimations, \citep{miller2011dynamic,
-schwalb2012measurement}. In this case, the RNA abundances are multiplied by 
-a probability that at least one uridine in the molecule is substituted by 4sU,
-\begin{equation}
-P(\text{\#u}, p) = 1-(1-p)^{\text{\#}u},
-\end{equation}
-where $p$ is the probability of a single replacement and  
- $\text{\#}u$ is the number of uridine bases in the molecule.
+schwalb2012measurement}.
+In this case, the RNA abundances are multiplied by 
+a probability that at least one uridine in the molecule is substituted by 4sU.
+The shared parameter then is the probability for a single base to be substituted
+by a 4sU.
+%\begin{equation}
+%P(\text{\#u}, p) = 1-(1-p)^{\text{\#}u},
+%\end{equation}
+%where $p$ is the probability of a single replacement and  
+% $\text{\#}u$ is the number of uridine bases in the molecule.
 \par 
 \subsection{Normalisation}
 Besides the parameters of the interest, one must estimate how different fractions
-and samples relate to each other. One reason for this is a variability of the sequencing
-depth. In addition, amounts of labelled and unlabelled RNA in fractions is changed due to 
-the pull-out procedure.
-This allows to estimate cross-contamination rates as well. For example, 
+and samples relate to each other, because  the sequencing depth may vary.
+In addition, amounts of labelled and unlabelled RNA in fractions is  changed due to 
+the pull-out procedure. 
+ For example, 
 if the labelled fraction consists of the labelled RNA $L_{ij}$ and the unlabelled RNA
- $U_{ij}$ molecules, for a sample $j$ and gene $i$ it will be
+ $U_{ij}$ molecules, for a sample $j$ and gene $i$ we have 
 \begin{equation}
  [\text{labelled fraction}]_{ij}  = \alpha_{j} L_{ij} + \beta_{j} U_{ij}
 \end{equation}
-If spike-ins present in the probes (recommended), the normalisation coefficients 
+If spike-ins present in the probes, the normalisation coefficients 
 are estimated directly as in the DESeq package, \citet{anders2010differential}. 
 The user must provide lists of spike-ins which are  specific for different types of RNA, 
 i.e. in order to estimate $\alpha_j$ and $\beta_j$ separately in our example.
@@ -45,8 +48,8 @@ i.e. in order to estimate $\alpha_j$ and $\beta_j$ separately in our example.
 In case of spike-ins-free experiments, 
 it can be possible to derive the normalisation factors, 
 because the system is overdetermined (given a high number of genes).
-The user then need to specify how to split samples into the groups.
-Inside one group (e.g. labelled fraction after 2hr of pulse) samples are normalised for sequencing rate $d_i$ by
+The user need to specify how to split samples into the groups.
+Inside one group (e.g. labelled fraction after 2hr of pulse) samples are normalised for sequencing depth $d_j$ by
 the DESeq procedure.
 Normalisation between the groups is performed during the fitting procedure, 
 and this coefficients are shared between the samples from the same group:
@@ -60,14 +63,14 @@ In RNA-seq experiments, expression level is represented by read number.
 To model such data, we assume them to follow the negative binomial (NB) distribution, 
 because the NB distribution is  shown to successfully describe over-dispersed RNA-seq data 
 \citep{robinson2007moderated}.
-The NB distribution has two parameters, mean $m$ and dispersion parameter 
+The NB distribution has two parameters, the mean $m$ and the dispersion parameter 
 $\alpha$.
 Hence,  a read number of a gene $i$ in a sample $j$ reads
 \begin{equation}
  K_{ij} \sim \text{NB}(m_{ij}, \alpha).
 \end{equation}
-Here we treat the  dispersion parameters $\alpha$ as  shared between all
-samples and genes, because would not be possible to infer about several parameters
+Here we treat the  dispersion parameters $\alpha$ as  being shared between all
+samples and genes. Otherwise it would not be possible to infer all parameters 
 from a small number of replicates (usually, only 2 or 3 points are available).
 
 
@@ -75,7 +78,7 @@ We separated the fitting procedure into several simpler steps:
 \begin{enumerate}
  \item fitting of gene-specific parameters (e.g. degradation rate)
  \item fitting of shared parameters  
- \item fitting of the normalisation factors (if spike-in free)
+ \item fitting of the normalisation factors (for a spike-in-free design)
  \item estimation of the dispersion parameter 
 \end{enumerate}
 We repeat the steps 1-4 until

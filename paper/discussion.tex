@@ -1,4 +1,4 @@
-\subsection{Comparison to existing approaches}
+\subsection{Comparison with existing approaches}
 The published approaches are different in terms of 
 data normalisation, statistical model and underlying mathematical model of the 
 RNA metabolism. Here we analyse the following software:
@@ -6,41 +6,55 @@ DRiLL \citep{rabani2014high},
 INSPEcT \citep{de2015inspect},
 DTA \citep{schwalb2012measurement},
 HALO \citep{friedel2010halo}.
-\subsubsection*{Normalisation}
-Samples are mostly normalised utilising overdetermination of the system.
+\par 
+In most cases, samples are normalised by utilising overdetermination of the system.
 The normalisation coefficients are estimated via regression
-(DTA, HALO?) or during the fitting together 
+(DTA, HALO) or during the MLE procedure together  
 with other parameters (INSPEcT, DRiLL). 
-Besides normalisation coupled with the parameter fitting, 
-the pulseR allows to use spike-ins counts as an alternative.
-
-\subsubsection*{Statistical model}
-
-Since such models were first applied to microarray pulse-experiments,
-the normal distribution assumptions was used (DTA, HALO).
+Besides the normalisation during parameter fitting, 
+pulseR allows to use spike-ins counts as an alternative.
+\par
+HALO and DTA estimate degradation rates from a ratio of labelled and
+total RNA fractions without any assumptions on the statistical model.
 In DRiLL, expression levels are fitted to the binomial distribution. 
 However, the kinetic rates are estimated via
 optimisation of residual sum of squares in both, DRiLL and 
-INSPEcT.
-This implies the normality of the noise.
-In contrast, the pulseR implements the negative binomial distribution
-for fitting all the parameters,
+INSPEcT,
+which implies the normal distribution. 
+In contrast,  pulseR assumes the NB distribution
+for MLE of  all  parameters,
 which allows to work directly on the count data.
-\subsubsection*{Other features}
+\par
+Experiments may vary in scheme and time points number,
+and it is important how flexible to it a package is.
+ DTA and HALO are designed to work only on a single time
+point. DRiLL and INSPEcT can infer rates on the basis of several time points.
+Moreover, the mentioned packages can work only with  the pulse-experiments.
+pulseR package can handle different designs including chase- and combined 
+experiments with various number of data points,
+having formulas for mean read number estimation provided.	
+\par 
+The DRiLL and INSPEcT packages can model 
+time-dependent rates out of the box. Additionally, they can perform testing
+to select between constant rate and variable rate models.
+Noteworthy, the DRiLL software is able to handle data about multiple mRNA isoforms.
 \begin{table}
- \begin{tabular}{|c|c|c|c|c|c|}\hline
+ \begin{tabular}{|l|c|c|c|c|c|}\hline
                         &pulseR &DRiLL          &INSPEcT&DTA    &HALO       \\\hline
- stat.model             & NB    &N, BIN         &N       & N     &N      \\\hline                         
+ statistical model      & NB    &N, BIN         &N       & -    & -      \\\hline                         
  spike-ins              & +     &   -           &  -     &  -    & -         \\\hline               
- several time points    & +     &    +          &  +     &  -    & -         \\\hline                    
- experiment flexibility & +     &   -           &  -     &  -    & -         \\\hline 
- variable rates in time &  -    &    +          &  +     &  -    & -         \\\hline 
+ several time points    & +     &   +           &  +     &  -    & -         \\\hline                    
+  variable design       & +     &   -           &  -     &  -    & -         \\\hline 
+ non-constant rates     & -     &   +           &  +     &  -    & -         \\\hline 
             uridine bias& +     &   -           &  -     &  +    & +         \\\hline 
-       RNA processing   & -     &    +          &  +     &  -    & -         \\\hline 
-  %language              & R     &MATLAB         &  R     &  R    & Java      \\\hline 
+       RNA processing   &$\ast$ &   +           &  +     &  -    & -         \\\hline 
+       gene isoforms    & -     &   +           &  -     &  -    & -         \\\hline 
+  language              & R     &MATLAB         &  R     &  R    & Java      \\\hline 
  \end{tabular}
 \caption{Comparison of available software for parameter estimation in 
-pulse-chase experiments. N: normal, NB: negative binomial, BIN: binomial.}
+pulse-chase experiments. N: normal, NB: negative binomial, BIN: binomial.
+$\ast$ - must be defined by a user.
+}
 \end{table}
 
 \subsection{Application}
@@ -50,4 +64,8 @@ sample normalisation factors.
 For the detailed
 description of the workflow please refer to the supplementary material.
 
-\section{Conclusion}
+%\section{Conclusion}
+% The pulseR package provide an  interface for fitting models of
+% RNA dynamics to the read count data. 
+% It is freely available at 
+% http://github.com/dieterich-lab/pulseR.
