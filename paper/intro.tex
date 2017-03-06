@@ -1,25 +1,26 @@
-Gene expression is a dynamic process. Experiments which aim to measure
-kinetics of expression levels in time can help to reveal mechanisms of gene regulation. 
-With  new experimental set-ups, new types of generated data occur and one needs
-to develop new methods and frameworks to be able to extract the knowledge out of 
-the results.
-\par 
-Pulse-chase experimental approach allow to track changes 
-of mRNA due to synthesis of nascent RNA molecules and
-degradation of the old ones. The idea of the method is to introduce a label, which 
-incorporates in the newly synthesised RNA molecules and can be traced later.
-4sU labelling introduced by \citep{dolken2008high} allowed to estimate 
-kinetic rates of RNA metabolism in a number of studies up to date 
-\citep{
-sabo2014selective,
-rabani2011metabolic,
-miller2011dynamic,
-schwanhausser2011global,
-eser2016determinants,
-schwalb2016tt,
-marzi2016degradation,
-zhang2016biogenesis,
-neymotin2014determination,
-mukherjee2016integrative}.
-
-reviewed in \citep{wachutka2016measures}
+Gene expression level is defined by the rates of RNA synthesis and degradation.
+Understanding how certain gene levels are regulated in a response to
+ condition changes might help to uncover the underlying control mechanisms.
+\par
+The pulse-chase experimental approach allows to measure such kinetics. 
+ In this method, tracing molecules are introduced to the medium, 
+ which results in their incorporation into nascent RNA molecules.
+4sU labelling, developed by \citep{dolken2008high}, is used to estimate 
+kinetic rates of RNA metabolism in a number of studies up to date, 
+see \citep{wachutka2016measures} for the review.
+The  RNA-seq data generated in such experiments  have a discrete nature.
+However, there is no software available for  parameter
+estimation in kinetic models of gene expression, which is specifically designed to handle 
+count data. Here we present the \verb|pulseR| package, which allows to 
+process RNA-seq data from 4sU-labelling experiments.
+%\citep{
+%sabo2014selective,
+%rabani2011metabolic,
+%miller2011dynamic,
+%schwanhausser2011global,
+%eser2016determinants,
+%schwalb2016tt,
+%marzi2016degradation,
+%zhang2016biogenesis,
+%neymotin2014determination,
+%mukherjee2016integrative}.

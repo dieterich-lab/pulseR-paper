@@ -1,69 +1,71 @@
-\subsection{Comparison to existing approaches}
-The published so far approaches are different in terms of 
+\subsection{Comparison with existing approaches}
+The published approaches are different in terms of 
 data normalisation, statistical model and underlying mathematical model of the 
-RNA metabolism.
-\subsubsection*{Normalisation}
-The normalisation step aims to uncover relations between samples, which can 
-be different in sequencing depth, represent different fractions and were subjected
-different protocols of preparation. 
-Spike-in molecules, which one adds before fraction separation step,
-allow to simplify the fitting procedure. In this case, estimation of fraction-specific 
-coefficients and cross-contamination rates is separated from fitting of gene-specific parameters
-\citep{schwalb2016tt,neymotin2014determination}.
+RNA metabolism. Here we analyse the following software:
+DRiLL \citep{rabani2014high},
+INSPEcT \citep{de2015inspect},
+DTA \citep{schwalb2012measurement},
+HALO \citep{friedel2010halo}.
 \par 
-However, it comes with the price of complication of the exprerimental procedure,
-because one needs to synthesis labelled spike-ins molecules \citep{}.
-Alternative approach is to determine fraction- or sample- specific 
-normalising coefficients on the basis of the gene expression data only.
- In most cases, the analysis is performed on transformed raw read counts, i.e.
- to RPKMs (Reads Per Kilobase of transcript per Million).
-\begin{itemize}
- \item 
-\textbf{normalisation to RNA quantities:}  the total amount of 
-RNA  is measured for every fraction. This ratios of RNA quantity between 
-different fractions are used as fraction-specific coefficients \citep{rabani2011metabolic}.
-\item 
-\textbf{normalisation via regression:} \citet{schwanhausser2011global} 
-used an approach which was previously applied to 
- the microarray data in \citep{dolken2008high}.
- The total fraction $T$ is related to the labelled $L$ and unlabelled $U$ ones as
- $T = aU + bL$, where $a$ and $b$ are unknown.
- Ordinary regression recovers the coefficients $a$ and $b$. However,
- such procedure can results in unrealistic fraction ratios, and \citet{schwanhausser2011global}
- had to exclude certain genes from the analysis. 
- The total least-squares fitting is an another alternative \citep{miller2011dynamic, schwalb2012measurement}.
- \item \textbf{normalisation coupled with model fitting:}
- coefficients can be introduced as model parameters. Their values are
- recovered by MLE  together with other parameters \citep{eser2016determinants, de2015inspect}.
- Although being harder to implement, this approach allows parameters to influence 
- on each other, and hence, can result in  better estimations.
-\end{itemize}
-Our package can be used either with spike-in or spike-in free data.
-Additional known or unknown shared parameters can be introduced by a user as well, 
-which allows high flexibility in the experiment analysis.
+In most cases, samples are normalised by utilising overdetermination of the system.
+The normalisation coefficients are estimated via regression
+(DTA, HALO) or during the MLE procedure together  
+with other parameters (INSPEcT, DRiLL). 
+Besides the normalisation during parameter fitting, 
+pulseR allows to use spike-ins counts as an alternative.
+\par
+HALO and DTA estimate degradation rates from a ratio of labelled and
+total RNA fractions without any assumptions on the statistical model.
+In DRiLL, expression levels are fitted to the binomial distribution. 
+However, the kinetic rates are estimated via
+optimisation of residual sum of squares in both, DRiLL and 
+INSPEcT,
+which implies the normal distribution. 
+In contrast,  pulseR assumes the NB distribution
+for MLE of  all  parameters,
+which allows to work directly on the count data.
+\par
+Experiments may vary in scheme and time points number,
+and it is important how flexible to it a package is.
+ DTA and HALO are designed to work only on a single time
+point. DRiLL and INSPEcT can infer rates on the basis of several time points.
+Moreover, the mentioned packages can work only with  the pulse-experiments.
+pulseR package can handle different designs including chase- and combined 
+experiments with various number of data points,
+having formulas for mean read number estimation provided.	
+\par 
+The DRiLL and INSPEcT packages can model 
+time-dependent rates out of the box. Additionally, they can perform testing
+to select between constant rate and variable rate models.
+Noteworthy, the DRiLL software is able to handle data about multiple mRNA isoforms.
+\begin{table}
+ \begin{tabular}{|l|c|c|c|c|c|}\hline
+                        &pulseR &DRiLL          &INSPEcT&DTA    &HALO       \\\hline
+ statistical model      & NB    &N, BIN         &N       & -    & -      \\\hline                         
+ spike-ins              & +     &   -           &  -     &  -    & -         \\\hline               
+ several time points    & +     &   +           &  +     &  -    & -         \\\hline                    
+  variable design       & +     &   -           &  -     &  -    & -         \\\hline 
+ non-constant rates     & -     &   +           &  +     &  -    & -         \\\hline 
+            uridine bias& +     &   -           &  -     &  +    & +         \\\hline 
+       RNA processing   &$\ast$ &   +           &  +     &  -    & -         \\\hline 
+       gene isoforms    & -     &   +           &  -     &  -    & -         \\\hline 
+  language              & R     &MATLAB         &  R     &  R    & Java      \\\hline 
+ \end{tabular}
+\caption{Comparison of available software for parameter estimation in 
+pulse-chase experiments. N: normal, NB: negative binomial, BIN: binomial.
+$\ast$ - must be defined by a user.
+}
+\end{table}
 
-\subsubsection*{Statistical model}
-\textbf{The NB distribution} is known to describe well the count data in RNA-seq 
-experiments \citep{robinson2007moderated}. This encourages to use it over 
-normal distribution assumption, which was applied earlier to the microarray data sets
-\citep{miller2011dynamic}. In our package, we implement NB assumptions, which were
-successfully applied to short pulse-labelling in \citep{eser2016determinants,
-schwalb2016tt}.\\
-\textbf{The normal distribution} is implemented in \verb|INSPEcT| R package \citep{de2015inspect},
-\verb|DRiLL| software \citep{rabani2014high}. 
-Although such assumptions 
-were applied to RNA-seq data previously \citep{}, we think that this approach suits better 
-for microarray data analysis.\\
-\verb|DTA| R package \citep{schwalb2012measurement} is designed to
-estimate kinetic rates from a single time point. The values for 
-total, labelled and unlabelled fractions are treated as known parameters, and 
-no statistical model is assumed. A similar approach is implemented in 
-\verb|HALO| Java framework \citep{friedel2010halo}. 
+\subsection{Application}
+We evaluated \verb|pulseR| performance using simulated data. 
+The software is able to reproduce gene-specific parameters and 
+sample normalisation factors.
+For the detailed
+description of the workflow please refer to the supplementary material.
 
-\subsubsection*{Mathematical model}
-In our package implementation, we leave freedom for user to formulate a mathematical
-model for the data. In the \emph{methods} section we describe a model, which 
-does not include RNA maturation.
-
-
-- no delays in the model (transcr-transl)					
+%\section{Conclusion}
+% The pulseR package provide an  interface for fitting models of
+% RNA dynamics to the read count data. 
+% It is freely available at 
+% http://github.com/dieterich-lab/pulseR.
