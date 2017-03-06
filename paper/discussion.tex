@@ -18,12 +18,15 @@ the pulseR allows to use spike-ins counts as an alternative.
 
 Since such models were first applied to microarray pulse-experiments,
 the normal distribution assumptions was used (DTA, HALO).
-INSPEcT and DRiLL, although being developed for the RNA-seq data,
-use optimisation of residual sum of squares for the fitting, which 
-implies the normality of the data. In DRiLL, expression levels are fitted
-to the binomial distribution, though.
-In contrast, the pulseR implements the negative binomial distribution,
-which allow to work directly on the count data.
+In DRiLL, expression levels are fitted to the binomial distribution. 
+However, the kinetic rates are estimated via
+optimisation of residual sum of squares in both, DRiLL and 
+INSPEcT.
+This implies the normality of the noise.
+In contrast, the pulseR implements the negative binomial distribution
+for fitting all the parameters,
+which allows to work directly on the count data.
+\subsubsection*{Other features}
 \begin{table}
  \begin{tabular}{|c|c|c|c|c|c|}\hline
                         &pulseR &DRiLL          &INSPEcT&DTA    &HALO       \\\hline
@@ -37,13 +40,7 @@ which allow to work directly on the count data.
   %language              & R     &MATLAB         &  R     &  R    & Java      \\\hline 
  \end{tabular}
 \caption{Comparison of available software for parameter estimation in 
-labelling experiments. N: normal, NB: negative binomial, BIN: binomial.
-PulseR (this paper), 
-DRiLL \citep{rabani2014high},
-INSPEcT \citep{de2015inspect},
-DTA \citep{schwalb2012measurement},
-HALO \citep{friedel2010halo}
-}
+pulse-chase experiments. N: normal, NB: negative binomial, BIN: binomial.}
 \end{table}
 
 \subsection{Application}
