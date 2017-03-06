@@ -3,10 +3,16 @@ Understanding the way how certain gene level is regulated in a response to
 the condition change might help to uncover the underlying mechanisms.
 \par
 The pulse-chase experimental approach allows to study such kinetics. 
- In this method, a tracing molecules are introduced to the medium, 
- whic	h results in their incorporation into nascent RNA molecules.
-4sU labelling developed by \citep{dolken2008high} allowed to estimate 
-kinetic rates of RNA metabolism in a number of studies up to date 
+ In this method, tracing molecules are introduced to the medium, 
+ which results in their incorporation into nascent RNA molecules.
+4sU labelling developed by \citep{dolken2008high} used to estimate 
+kinetic rates of RNA metabolism in a number of studies up to date, 
+see \citep{wachutka2016measures} for review.
+This experiments generate  RNA-seq data which have discrete nature.
+However, there is no software for  parameter
+estimation in kinetic models of gene expression, which can handle 
+count data. Here we present the \verb|pulseR| package, which allows to 
+process RNA-seq data from 4sU-labelling experiments.
 %\citep{
 %sabo2014selective,
 %rabani2011metabolic,
@@ -18,5 +24,3 @@ kinetic rates of RNA metabolism in a number of studies up to date
 %zhang2016biogenesis,
 %neymotin2014determination,
 %mukherjee2016integrative}.
-
-reviewed in \citep{wachutka2016measures}

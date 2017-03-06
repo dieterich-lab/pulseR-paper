@@ -1,11 +1,29 @@
 \subsection{Comparison to existing approaches}
-The published so far approaches are different in terms of 
+The published approaches are different in terms of 
 data normalisation, statistical model and underlying mathematical model of the 
-RNA metabolism.
+RNA metabolism. Here we analyse the following software:
+DRiLL \citep{rabani2014high},
+INSPEcT \citep{de2015inspect},
+DTA \citep{schwalb2012measurement},
+HALO \citep{friedel2010halo}.
 \subsubsection*{Normalisation}
+Samples are mostly normalised utilising overdetermination of the system.
+The normalisation coefficients are estimated via regression
+(DTA, HALO?) or during the fitting together 
+with other parameters (INSPEcT, DRiLL). 
+Besides normalisation coupled with the parameter fitting, 
+the pulseR allows to use spike-ins counts as an alternative.
 
 \subsubsection*{Statistical model}
 
+Since such models were first applied to microarray pulse-experiments,
+the normal distribution assumptions was used (DTA, HALO).
+INSPEcT and DRiLL, although being developed for the RNA-seq data,
+use optimisation of residual sum of squares for the fitting, which 
+implies the normality of the data. In DRiLL, expression levels are fitted
+to the binomial distribution, though.
+In contrast, the pulseR implements the negative binomial distribution,
+which allow to work directly on the count data.
 \begin{table}
  \begin{tabular}{|c|c|c|c|c|c|}\hline
                         &pulseR &DRiLL          &INSPEcT&DTA    &HALO       \\\hline
@@ -27,3 +45,12 @@ DTA \citep{schwalb2012measurement},
 HALO \citep{friedel2010halo}
 }
 \end{table}
+
+\subsection{Application}
+We evaluated \verb|pulseR| performance using simulated data. 
+The software is able to reproduce gene-specific parameters and 
+sample normalisation factors.
+For the detailed
+description of the workflow please refer to the supplementary material.
+
+\section{Conclusion}
