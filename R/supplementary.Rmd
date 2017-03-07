@@ -1,0 +1,155 @@
+---
+title: Supplementary material
+author: Alexey Uvarovskii
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r}
+library(pulseR)
+
+set.seed(259)
+
+nGenes <- 1000
+nReplicates <- 3
+nTime <- 3
+
+
+formulas <- MeanFormulas(
+  total      = mu,
+  labelled   = mu * d^time,
+  unlabelled = mu * (1 - d^time)
+)
+```
+
+```{r}
+formulaIndexes <- list(
+  total_samp = 'total',
+  label_samp = c('labelled', 'unlabelled')
+)
+```
+
+```{r}
+
+conditions <- data.frame(condition = rep(names(formulaIndexes), each = nTime),
+                         time = rep(1:nTime, length(formulaIndexes) * nReplicates))
+knitr::kable(conditions)
+```
+
+```{r}
+rownames(conditions) <- paste0("sample_", seq_along(conditions$condition))
+known <- pulseR:::addKnownToFormulas(formulas, formulaIndexes, conditions)
+```
+
+```{r}
+normFactors <- known$formulaIndexes[unique(names(known$formulaIndexes))]
+normFactors <- normFactors[-grep("total", names(normFactors))]
+normFactors <- c(list(total = 1), normFactors)
+normFactors <- relist(seq_along(unlist(normFactors)), normFactors)
+normFactors[2:4] <- lapply(normFactors[2:4], '[[<-',2,.1)
+normFactors
+```
+```{r}
+known$formulas
+```
+
+```{r}
+fractions <- as.character(interaction(conditions))
+fractions[grep("total", fractions)] <- "total"
+knitr::kable(cbind(rownames(conditions),fractions))
+```
+
+```{r cache=TRUE}
+par <- list(size = 1e2)
+par$mu <- runif(nGenes, 1, 1e5)
+par$d <- runif(nGenes,.1,.91)
+
+allNormFactors <- pulseR:::multiplyList(normFactors, fractions)
+
+counts <- generateTestDataFrom(
+  formulas, formulaIndexes, allNormFactors, par, conditions)
+```
+
+```{r cache=TRUE}
+pd <- PulseData(
+  counts = counts,
+  conditions = conditions,
+  formulas = formulas,
+  formulaIndexes = formulaIndexes,
+  groups = fractions
+)
+```
+
+```{r }
+opts <- list()
+opts <- setBoundaries(
+  list(
+  mu=c(1,1e6),
+  d=c(.01,.99),
+  normFactors=c(.1,20)
+  ),
+  options = opts
+)
+
+opts <- setTolerance(.01,shared = .01, normFactors = .01,options = opts)
+
+opts$verbose <- "silent"
+initPars <- initParameters(NULL, c("mu", "d"), pd, opts)
+```
+
+```{r cache=TRUE}
+res <- pulseR:::fitModel(pd, initPars, opts)
+```
+
+```{r, fig.height=4, fig.width=4}
+
+pr <- predictExpression(pd, res)
+
+plot(
+  x = as.vector(pr$predictions),
+  y = as.vector(pd$counts),
+  pch = 16,
+  cex = .3,
+  log = 'xy',
+  xlab = "fitted",
+  ylab = "experiment"
+  )
+```
+```{r, fig.height=4, fig.width=4}
+
+plot(
+  x =par$mu,
+  y =res$mu,
+  pch = 16,
+  cex = .3,
+  log = 'xy',
+  xlab = "true",
+  ylab = "fitted",
+  main="mu"
+  )
+plot(
+  x =par$d,
+  y =res$d,
+  pch = 16,
+  cex = .3,
+  log = 'xy',
+  xlab = "true",
+  ylab = "fitted",
+  main="d"
+  )
+```
+
+```{r, fig.height=4, fig.width=4}
+
+plot(
+  x =par$mu,
+  y =(res$d/par$d),
+  pch = 16,
+  cex = .3,
+  log = 'x',
+  xlab = "true mu",
+  ylab = "fitted/true",
+  main="d"
+  )
+```
+
