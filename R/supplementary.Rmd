@@ -212,70 +212,34 @@ res$normFactors
 
 pr <- predictExpression(pd, res)
 
-plot(
-  x = as.vector(pr$predictions),
-  y = as.vector(pd$counts),
-  pch = 16,
-  cex = .3,
-  log = 'xy',
-  xlab = "fitted",
-  ylab = "experiment"
-  )
+plot(x = as.vector(pr$predictions), y = as.vector(pd$counts), 
+     pch = 16, cex = .3, log = 'xy', 
+     xlab = "fitted", ylab = "experiment")
 ```
 ```{r, fig.height=4, fig.width=4}
 
-plot(
-  x =par$mu,
-  y =res$mu,
-  pch = 16,
-  cex = .3,
-  log = 'xy',
-  xlab = "true",
-  ylab = "fitted",
-  main="mu"
-  )
-abline(0,1, col=2)
-
-```
-
-```{r}
-plot(
-  x =par$d,
-  y =res$d,
-  pch = 16,
-  cex = .3,
-  log = 'xy',
-  xlab = "true",
-  ylab = "fitted",
-  main="d"
-  )
-abline(0,1, col=2)
-```
-```{r}
-plot(
-  x =exp(-par$d),
-  y =exp(-res$d),
-  pch = 16,
-  cex = .3,
-  log = 'xy',
-  xlab = "true",
-  ylab = "fitted",
-  main="d"
-  )
+plot(x = par$mu, y = res$mu, 
+     pch = 16, cex = .3, log = 'xy', 
+     xlab = "true", ylab = "fitted", main = "mu")
 abline(0,1, col=2)
 ```
 
 ```{r, fig.height=4, fig.width=4}
+plot(x = par$d, y = res$d, 
+     pch = 16, cex = .3, log = 'xy', xlab = "true", ylab = "fitted", main = "d")
+abline(0,1, col=2)
+```
+```{r, fig.height=4, fig.width=4}
+plot(x = exp(-par$d), y = exp(-res$d), 
+     pch = 16, cex = .3, log = 'xy',
+     xlab = "true", ylab = "fitted", main = "d")
+abline(0, 1, col = 2)
+```
 
-plot(
-  x =par$mu,
-  y =(res$d/par$d),
-  pch = 16,
-  cex = .3,
-  log = 'x',
-  xlab = "true mu",
-  ylab = "fitted/true",
-  main="d"
-  )
+```{r, fig.height=4, fig.width=4}
+
+plot(x = par$mu, y = (res$d / par$d), 
+     pch = 16, cex = .3, log = 'x',
+     xlab = "true mu", ylab = "fitted/true", main = "d")
 ```
 
