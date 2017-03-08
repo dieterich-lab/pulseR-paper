@@ -2,74 +2,158 @@
 title: Supplementary material
 author: Alexey Uvarovskii
 date: "`r Sys.Date()`"
-output: pdf_document
+output: 
+  pdf_document:
+    highlight: default
+    toc: true
+    toc_depth: 3
+urlcolor: cyan
+fontsize: 12pt
+mainfont: 'Helvetica'
 ---
-## 
+
+## Introduction
+
+Here we validate performance of the pulseR package on the simulated data.
+We will consider a pulse-experiment with no spike-ins added.
+The data include the total and the pull-out fractions for several
+time points in three replicates.
+
+In the pulse-experiment, the unlabelled RNA is being degraded, starting
+from the steady-state amount at time $t=0$hr. The labelled fraction is being
+synthesised with the rate $s$, although it degrades with the same rate $d$ 
+as well.
+A system of ordinary differential equations, which describes this processes, is
+$$
+\begin{aligned}
+\frac{d\text{[labelled RNA]}}{dt} &= s - d \text{[labelled RNA]}\\
+\frac{d\text{[unlabelled RNA]}}{dt} &= -d \text{[unlabelled RNA]}\\
+\text{[total]} &= \text{[labelled]} + \text{[unlabelled]}
+\end{aligned}
+$$
+For a constant rates of degradation $d$ and synthesis $s$, the amounts of RNA 
+at the time $t$ are
+$$ 
+\begin{aligned}
+ \text{[total RNA]} &= \frac{s}{d} \equiv \mu \\
+\text{[labelled RNA]} &= \mu (1 - e^{-dt})  \\
+ \text{[unlabelled RNA]} &= \mu e^{-dt}, 
+\end{aligned}
+$$
+
+where $\mu$ is the expression level of a gene in a steady state.
+
+## Definitions
+
+### Formulas
+
+We can simulate count data using internal pulseR function
+`pulseR:::generateTestDataFrom`. For this, one needs to define the formulas
+for the mean read number of all three fractions:
+
 ```{r}
 library(pulseR)
 
 set.seed(259)
 
-nGenes <- 99
-nReplicates <- 3
-nTime <- 3
+nGenes <- 530
+nReplicates <- 2
+nTime <- 4
 
 
 formulas <- MeanFormulas(
   total        = mu,
-  labelled     = mu * (1 - d^time),
-  unlabelled   = mu * d^time
+  labelled     = mu * (1 - exp(-d*time)),
+  unlabelled   = mu * exp(-d*time)
 )
 ```
+
+### Fractions
+
+In reality, there is not pure labelled or unlabelled fractions in samples.
+That is why it can be important to model fraction cross-contamination.
+Here we assume that the labelled fraction consist of certain amount of
+the unlabelled one.
+Hence, we distinguish the labelled RNA and the "labelled" pull-out fraction.
 
 ```{r}
 formulaIndexes <- list(
   total_samp = 'total',
-  label_samp = c('labelled', 'unlabelled')
+  label_samp = c('labelled', 'unlabelled'),
+  unlabel_samp = c('unlabelled', 'labelled')
 )
 ```
+This definition allows us to calculate mean read number in the 
+`label_samp` pull-out fraction as a [linear combination](https://en.wikipedia.org/wiki/Linear_combination) of the 
+formulas for the labelled and unlabelled RNA amounts.
+
+### Conditions 
+
+Here we specify the condition `data.frame`, which includes information on 
+the type of sample and the time points.
 
 ```{r}
 
-conditions <- data.frame(condition = rep(names(formulaIndexes), each = nTime),
-                         time = rep(1:nTime, length(formulaIndexes) * nReplicates))
+conditions <- data.frame(
+  condition = rep(names(formulaIndexes), each = nTime),
+  time = rep(1:nTime, length(formulaIndexes) * nReplicates))
+rownames(conditions) <- paste0("sample_", seq_along(conditions$condition))
 knitr::kable(conditions)
 ```
 
-```{r}
-rownames(conditions) <- paste0("sample_", seq_along(conditions$condition))
-known <- pulseR:::addKnownToFormulas(formulas, formulaIndexes, conditions)
-```
+### Normalisation factors
 
-```{r}
-normFactors <- known$formulaIndexes[unique(names(known$formulaIndexes))]
-normFactors <- normFactors[-grep("total", names(normFactors))]
-normFactors <- c(list(total = 1), normFactors)
-normFactors <- relist(seq_along(unlist(normFactors)), normFactors)
-normFactors[2:4] <- lapply(normFactors[2:4], '[[<-',2,.1)
-normFactors
-```
-```{r}
-known$formulas
-```
-
+Since we are going to simulate an experiments without spike-ins, 
+we  need to define the relations between different samples via
+*normalisation factors*.
+We divide samples into groups depending on their time point and fraction.
+Except the total fraction, other samples are considered to belong to different
+group if the time points are different:
 ```{r}
 fractions <- as.character(interaction(conditions))
-fractions[grep("total", fractions)] <- "total"
+fractions[grep("total", fractions)] <- "total_samp"
 knitr::kable(cbind(rownames(conditions),fractions))
 ```
 
+Here we use the inner function  `pulseR:::addKnownToFormulas` in order 
+to get the correct form of the list with the normalisation factors.
+The pull-out samples include $0.3/3\cdot 100\% = 10\%$ of the unlabelled fraction.
+```{r}
+known <- pulseR:::addKnownToFormulas(formulas, formulaIndexes, conditions)
+normFactors <- known$formulaIndexes[unique(names(known$formulaIndexes))]
+normFactors <- normFactors[-grep("total", names(normFactors))]
+normFactors <- c(list(total_samp = 1), normFactors)
+#normFactors <- relist(seq_along(unlist(normFactors)), normFactors)
+normFactors <- relist(c(1, rep(3,length(unlist(normFactors))-1)), normFactors)
+normFactors[-1] <- lapply(normFactors[-1], '[[<-',2,.10)
+normFactors
+```
+
+### Simulate parameters
+We sample the mean expression level and the degradation rates from 
+finite intervals:
 ```{r}
 par <- list(size = 1e2)
 par$mu <- runif(nGenes, 1, 1e5)
-par$d <- runif(nGenes,.1,.91)
+par$d <- exp(runif(nGenes,log(0.01), log(2)))
 
+
+```
+And, finally, we simulate the data from the negative binomial distribution
+using the internal function which is also used in tests to the package:
+```{r}
 allNormFactors <- pulseR:::multiplyList(normFactors, fractions)
 
 counts <- generateTestDataFrom(
   formulas, formulaIndexes, allNormFactors, par, conditions)
 ```
 
+## Fitting
+
+### Create the PulseData object
+We define a PulseData object on the basis of the generated counts, the condition
+matrix, relations between formulas and samples. We also provide the information
+on how to split the samples for normalisation.
 ```{r}
 pd <- PulseData(
   counts = counts,
@@ -80,32 +164,45 @@ pd <- PulseData(
 )
 ```
 
+### Set fitting options
+In order to use the fitting function, one need to provide
+the boundaries of the parameters. In addition,
+we set here the relative tolerance thresholds.
 ```{r }
 opts <- list()
 lbNorms <- list(
   total_samp = 1,
-  labelled_samp = c(.1,.0))
+  label_samp = c(.1,.010),
+  unlabel_samp = c(.1,.010))
 ubNorms <- list(
   total_samp = 1,
-  labelled_samp = c(10, 2))
+  label_samp = c(10, 2),
+  unlabel_samp = c(10, 2))
 opts <- setBoundaries(
   list(
   mu=c(1,1e6),
-  d=c(.01,.99),
-  normFactors=list(lbNorms, ubNorms)
-  ),
+  d = range(par$d) * c(1/5, 5)),
+  normFactors=list(lbNorms, ubNorms),
   options = opts
 )
 
-opts <- setTolerance(.001, normFactors = .01, options = opts)
+opts <- setTolerance(.01, normFactors = .001, options = opts)
 
-opts$verbose <- "silent"
+```
+### Fit
+Before the fitting, one need to initialise the first guess for 
+the parameters. The outcome of the fitting procedure may depend
+on this initial values a lot.
+```{r}
 initPars <- initParameters(NULL, c("mu", "d"), pd, opts)
 ```
-
-```{r cache=F}
+Now we are ready to start the fitting:
+```{r cache=T}
 res <- fitModel(pd, initPars, opts)
 ```
+
+## Results
+Due to 
 ```{r}
 res$normFactors
 ```
@@ -138,9 +235,26 @@ plot(
   main="mu"
   )
 abline(0,1, col=2)
+
+```
+
+```{r}
 plot(
   x =par$d,
   y =res$d,
+  pch = 16,
+  cex = .3,
+  log = 'xy',
+  xlab = "true",
+  ylab = "fitted",
+  main="d"
+  )
+abline(0,1, col=2)
+```
+```{r}
+plot(
+  x =exp(-par$d),
+  y =exp(-res$d),
   pch = 16,
   cex = .3,
   log = 'xy',
