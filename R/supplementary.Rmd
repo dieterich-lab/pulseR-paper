@@ -1,27 +1,28 @@
 ---
-title: Supplementary material
-author: Alexey Uvarovskii
-date: "`r Sys.Date()`"
-output: 
+title: "Supplementary material"
+author: "Alexey Uvarovskii, Christoph Dieterich"
+date: '`r Sys.Date()`'
+output:
   pdf_document:
     highlight: default
-    toc: true
+    toc: yes
     toc_depth: 3
-urlcolor: cyan
+  github_document: default
+mainfont: Helvetica
 fontsize: 12pt
-mainfont: 'Helvetica'
+urlcolor: cyan
 ---
 
 ## Introduction
 
 Here we validate performance of the pulseR package on the simulated data.
 We will consider a pulse-experiment with no spike-ins added.
-The data include the total and the pull-out fractions for several
-time points in three replicates.
+The data include the total, the pull-out and the flow-through
+fractions for four time points in two replicates.
 
 In the pulse-experiment, the unlabelled RNA is being degraded, starting
 from the steady-state amount at time $t=0$hr. The labelled fraction is being
-synthesised with the rate $s$, although it degrades with the same rate $d$ 
+synthesised with the rate $s$, and it degrades with the same rate $d$ 
 as well.
 A system of ordinary differential equations, which describes this processes, is
 $$
@@ -31,7 +32,7 @@ $$
 \text{[total]} &= \text{[labelled]} + \text{[unlabelled]}
 \end{aligned}
 $$
-For a constant rates of degradation $d$ and synthesis $s$, the amounts of RNA 
+For constant rates of degradation $d$ and synthesis $s$, the amounts of RNA 
 at the time $t$ are
 $$ 
 \begin{aligned}
@@ -70,21 +71,24 @@ formulas <- MeanFormulas(
 
 ### Fractions
 
-In reality, there is not pure labelled or unlabelled fractions in samples.
-That is why it can be important to model fraction cross-contamination.
-Here we assume that the labelled fraction consist of certain amount of
-the unlabelled one.
+In reality, there is no pure labelled or unlabelled fractions in samples.
+That is why it may be important to model fraction cross-contamination.
+Here we assume that the labelled fraction consists of certain amount of
+the unlabelled one, and vice versa, the unlabelled one is contaminated
+with the labelled molecules.
 Hence, we distinguish the labelled RNA and the "labelled" pull-out fraction.
 
 ```{r}
+# important: the labels must be the same as in formulas,
+# or they must be integer list indexes
 formulaIndexes <- list(
-  total_samp = 'total',
-  label_samp = c('labelled', 'unlabelled'),
-  unlabel_samp = c('unlabelled', 'labelled')
+  total_sample   = 'total',
+  label_sample   = c('labelled', 'unlabelled'),
+  unlabel_sample = c('unlabelled', 'labelled')
 )
 ```
 This definition allows us to calculate mean read number in the 
-`label_samp` pull-out fraction as a [linear combination](https://en.wikipedia.org/wiki/Linear_combination) of the 
+fractions as a [linear combination](https://en.wikipedia.org/wiki/Linear_combination) of the 
 formulas for the labelled and unlabelled RNA amounts.
 
 ### Conditions 
@@ -93,10 +97,10 @@ Here we specify the condition `data.frame`, which includes information on
 the type of sample and the time points.
 
 ```{r}
-
+# create nReplicates * nTime * 3 (labelled, unlabelled, total) data points
 conditions <- data.frame(
   condition = rep(names(formulaIndexes), each = nTime),
-  time = rep(1:nTime, length(formulaIndexes) * nReplicates))
+  time      = rep(1:nTime, length(formulaIndexes) * nReplicates))
 rownames(conditions) <- paste0("sample_", seq_along(conditions$condition))
 knitr::kable(conditions)
 ```
@@ -111,37 +115,48 @@ Except the total fraction, other samples are considered to belong to different
 group if the time points are different:
 ```{r}
 fractions <- as.character(interaction(conditions))
-fractions[grep("total", fractions)] <- "total_samp"
+# assume that the total RNA amount does not change with the time
+# so all total fractions can be treated together
+fractions[grep("total", fractions)] <- "total_sample"
 knitr::kable(cbind(rownames(conditions),fractions))
 ```
 
 Here we use the inner function  `pulseR:::addKnownToFormulas` in order 
 to get the correct form of the list with the normalisation factors.
-The pull-out samples include $0.3/3\cdot 100\% = 10\%$ of the unlabelled fraction.
 ```{r}
 known <- pulseR:::addKnownToFormulas(formulas, formulaIndexes, conditions)
 normFactors <- known$formulaIndexes[unique(names(known$formulaIndexes))]
+# the total fractions have the reference factor = 1
 normFactors <- normFactors[-grep("total", names(normFactors))]
-normFactors <- c(list(total_samp = 1), normFactors)
-#normFactors <- relist(seq_along(unlist(normFactors)), normFactors)
-normFactors <- relist(c(1, rep(3,length(unlist(normFactors))-1)), normFactors)
+normFactors <- c(list(total_sample = 1), normFactors)
+# linear combinations with the coefficient 0.1 for contaminating fraction
+# and the coefficient 3 for the main fraction of the sample
+normFactors <- relist(c(1, rep(3, length(unlist(normFactors)) - 1)),
+                      normFactors)
 normFactors[-1] <- lapply(normFactors[-1], '[[<-',2,.10)
-normFactors
+str(normFactors)
 ```
 
-### Simulate parameters
+## Simulation
 We sample the mean expression level and the degradation rates from 
 finite intervals:
 ```{r}
+# set size factor for the rnbinom function
 par <- list(size = 1e2)
-par$mu <- runif(nGenes, 1, 1e5)
+# set mean read number for every gene 
+# by sampling from the log-uniform distribution
+par$mu <- exp(runif(nGenes, 0, log(1e5)))
+# set the degradation rates from log-uniform distribution
 par$d <- exp(runif(nGenes,log(0.01), log(2)))
 
 
 ```
 And, finally, we simulate the data from the negative binomial distribution
-using the internal function which is also used in tests to the package:
+using the `generateTestDataFrom` function: 
 ```{r}
+# the generateTestDataFrom needs for an input normFactors 
+# provided for every individual sample (i.e. we need to utilise 
+# the group information ourselves)
 allNormFactors <- pulseR:::multiplyList(normFactors, fractions)
 
 counts <- generateTestDataFrom(
@@ -149,6 +164,10 @@ counts <- generateTestDataFrom(
 ```
 
 ## Fitting
+
+This section describes the usual workflow for analysis of the count data
+coming from the experiment without spike-ins defined above,
+i.e. this is an entry point of the package usage on the real data.
 
 ### Create the PulseData object
 We define a PulseData object on the basis of the generated counts, the condition
@@ -169,24 +188,26 @@ In order to use the fitting function, one need to provide
 the boundaries of the parameters. In addition,
 we set here the relative tolerance thresholds.
 ```{r }
-opts <- list()
-lbNorms <- list(
-  total_samp = 1,
-  label_samp = c(.1,.010),
-  unlabel_samp = c(.1,.010))
-ubNorms <- list(
-  total_samp = 1,
-  label_samp = c(10, 2),
-  unlabel_samp = c(10, 2))
+# lower and upper boundaries for the normalisation factors. 
+# The total one will be ignored, because the first coefficient 
+# is always the reference one with the value 1. 
+# The reason is that we can identify the means of read numbers only
+# up to an unknown multiplier.
+lbNormFactors <- list(
+  total_sample   = 1,
+  label_sample   = c(.1,.010),
+  unlabel_sample = c(.1,.010))
+ubNormFactors <- list(
+  total_sample   = 1,
+  label_sample   = c(10, 2),
+  unlabel_sample = c(10, 2))
+# set lower and upper boundaries for the rest of the parameters
 opts <- setBoundaries(
-  list(
-  mu=c(1,1e6),
-  d = range(par$d) * c(1/5, 5)),
-  normFactors=list(lbNorms, ubNorms),
-  options = opts
-)
-
-opts <- setTolerance(.01, normFactors = .001, options = opts)
+  list(mu = c(1, 1e6), d = range(par$d) * c(1 / 5, 5)),
+  normFactors = list(lbNormFactors, ubNormFactors))
+# set the tolerance for the gene-specific parameters and
+# the normalisation factors
+opts <- setTolerance(params = .01, normFactors = .001, options = opts)
 
 ```
 ### Fit
@@ -194,7 +215,10 @@ Before the fitting, one need to initialise the first guess for
 the parameters. The outcome of the fitting procedure may depend
 on this initial values a lot.
 ```{r}
-initPars <- initParameters(NULL, c("mu", "d"), pd, opts)
+# initialise mu and d as gene-specific parameters, i.e. they must
+# be sampled for every single gene individually
+initPars <- initParameters(par = NULL, geneParams = c("mu", "d"), pd, opts)
+str(initPars)
 ```
 Now we are ready to start the fitting:
 ```{r cache=T}
@@ -202,44 +226,98 @@ res <- fitModel(pd, initPars, opts)
 ```
 
 ## Results
-Due to 
+
+### Normalisation factors
+
+Since the normalisation factors are fitted together with the rest of the 
+parameters, they affect the identifiability of the last.
+However, the normalisation of the main fraction in the samples is 
+recovered well (i.e. the coefficient `3`).
 ```{r}
-res$normFactors
+str(res$normFactors)
 ```
 
+### Gene-specific parameters
 
+The estimated expected read mean numbers are well consistent with the 
+raw simulated data:
 ```{r, fig.height=4, fig.width=4}
-
+# get the expected read number for every data point in counts
 pr <- predictExpression(pd, res)
-
-plot(x = as.vector(pr$predictions), y = as.vector(pd$counts), 
+plot(x = as.vector(pr$predictions)+.5, y = as.vector(pd$counts)+.5, 
      pch = 16, cex = .3, log = 'xy', 
-     xlab = "fitted", ylab = "experiment")
+     xlab = "predicted", ylab = "experiment",
+     main = "Counts vs. means")
 ```
-```{r, fig.height=4, fig.width=4}
 
+Due to high number of total fraction samples, the parameter of the mean $\mu$ 
+is also well recovered from the data.
+
+```{r, fig.height=3.4, fig.width=3, fig.show='hold'}
+plot(density(1 - res$mu/par$mu), main="rel. err. mu")
 plot(x = par$mu, y = res$mu, 
      pch = 16, cex = .3, log = 'xy', 
      xlab = "true", ylab = "fitted", main = "mu")
-abline(0,1, col=2)
+abline(0, 1, col = 3)
 ```
-
+The degradation rate estimation is based on the less number of the samples 
+(total provide the information only on the expression level).
+Hence, the quality of the fit is worse, than for the $\mu$ parameter.
+We see that the error is higher for the less degrading genes:
 ```{r, fig.height=4, fig.width=4}
 plot(x = par$d, y = res$d, 
-     pch = 16, cex = .3, log = 'xy', xlab = "true", ylab = "fitted", main = "d")
-abline(0,1, col=2)
-```
-```{r, fig.height=4, fig.width=4}
-plot(x = exp(-par$d), y = exp(-res$d), 
-     pch = 16, cex = .3, log = 'xy',
+     pch = 16, cex = .3, log = 'xy', 
      xlab = "true", ylab = "fitted", main = "d")
-abline(0, 1, col = 2)
+abline(0, 1, col = 3)
+
 ```
+
+However, the misfit in $d$ for lowly degrading genes 
+has a minor effect on the error in predictions of the read number
+in comparison to the misfit in the higher ones, because
+it has an exponential impact:
+```{r, fig.height = 4, fig.width = 4}
+plot(x =par$d, y = exp(par$d-res$d),
+     pch = 16, cex = .3, 
+     xlab = "true", ylab = "fitted", 
+     main = expression(exp(d[true]-d[fitted])))
+abline(1, 0, col = 3)
+```
+
+Hence, the genes with the higher turn-over get a higher weight during 
+optimisation of the degradation rate in the frame of the generated data.
+
+As it was mentioned before,  the normalisation of the samples has an impact
+on the gene-specific parameters, and in our experiment the degradation rates
+are over-estimated for the majority of the genes. The estimation of $d$
+for the less expressed genes are less precise, because the have higher 
+noise/signal ratio:
 
 ```{r, fig.height=4, fig.width=4}
 
-plot(x = par$mu, y = (res$d / par$d), 
+plot(x = par$mu, y = log2(res$d / par$d), 
      pch = 16, cex = .3, log = 'x',
      xlab = "true mu", ylab = "fitted/true", main = "d")
+abline(a = 0, b = 0, col = 3)
 ```
 
+```{r}
+summary(res$d/par$d)
+```
+
+
+## Conclusion
+
+Here we presented a validation of the pulseR package performance on 
+the simulated data. As a result, we show that the values of
+the gene-specific parameters  can be recovered by 
+the maximum likelihood estimation  used by the package.
+The quality of the estimations directly depends on the data, i.e.
+on the amount of information and noise in the read numbers.
+
+The pulseR package enables to perform estimations even if 
+there are no spike-ins used in the experiment.
+However, this approach is limited to the systems, which 
+has structurally and practically identifiable parameters.
+That depends on the number of replicates, the type of the
+fractions provided and the cross-contamination rate.
