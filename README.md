@@ -8,6 +8,7 @@
 
 ### the pdf
 [paper](paper/paper.pdf)
+[the supplementary](R/supplementary.pdf)  
 
 ### reproduce
 [notebook](R/test.pdf)
