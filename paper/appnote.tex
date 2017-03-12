@@ -3,14 +3,14 @@ RNA dynamics can be described by ordinary differential equations,
 which have simple analytic solution 
 if the degradation and synthesis rates are assumed to be constant.
 In the \verb|pulseR| package,
-a user need to specify the expressions for the mean RNA abundances,
+users need to specify the expressions for the mean RNA abundances,
 Alternatively, formulas can be generated using package functions for the 
-most frequent cases. 
+most frequent cases (\textcolor{red}{how?}). 
 
 Although the most interest is focused on the gene-specific parameters,
 pulseR allows to introduce shared parameters.
  This can be useful for taking into account the difference in the uridine content, since
-it can introduce a bias in the estimations, \citep{miller2011dynamic,
+it can introduce a bias in the estimations \citep{miller2011dynamic,
 schwalb2012measurement}.
 In this case, the RNA abundances are multiplied by 
 a probability that at least one uridine in the molecule is substituted by 4sU.
@@ -22,62 +22,54 @@ by a 4sU.
 %where $p$ is the probability of a single replacement and  
 % $\text{\#}u$ is the number of uridine bases in the molecule.
 \subsubsection*{Normalisation}
-Besides the parameters of the interest, one must estimate how different fractions
-and samples relate to each other, because  the sequencing depth may vary.
-In addition, amounts of labelled and unlabelled RNA in fractions is  changed due to 
-the pull-out procedure. 
+We introduce additional parameters (\textcolor{red}{Which ?}) to account for different sequencing depths.
+Additionally, the pull-down procedure will have an effect on the amount and purity of captured RNA \textcolor{red}{Which parameter - please add a list of parameters to supplement?}. 
  For example, 
 if the labelled fraction consists of the labelled RNA $L_{ij}$ and the unlabelled RNA
  $U_{ij}$ molecules, for a sample $j$ and gene $i$ we have 
 \begin{equation}
  [\text{labelled fraction}]_{ij}  = \alpha_{j} L_{ij} + \beta_{j} U_{ij}
 \end{equation}
-If spike-ins present in the probes, the normalisation coefficients 
-are estimated directly as in the DESeq package, \citet{anders2010differential}. 
-The user must provide lists of spike-ins which are  specific for different types of RNA, 
-i.e. in order to estimate $\alpha_j$ and $\beta_j$ separately in our example.
+In case spike-ins are present, $\alpha_{j}$ and and $\beta_j$ can be directly estimated from spike-in read counts. 
+To this end, the user provides lists of spike-ins which represent unlabeled or labeled RNA.
 \par
-In case of spike-ins-free experiments, 
-it can be possible to derive the normalisation factors, 
-because the system is overdetermined (given a high number of genes).
-The user need to specify how to split samples into the groups.
-Inside one group (e.g. labelled fraction after 2hr of pulse) samples are normalised for sequencing depth $d_j$ by
-the DESeq procedure.
-Normalisation between the groups is performed during the fitting procedure, 
-and this coefficients are shared between the samples from the same group:
+In the absence of spike-ins, 
+normalization factors are derived from gene counts
+because the system is overdetermined.
+Inside a given RNA-seq group (e.g. [total, labeled, unlabeled ] x conditions) samples are normalized for sequencing depth $d_j$ following the DESeq procedure.
+Normalization between the groups is performed during the fitting procedure, 
+and these coefficients $\alpha$ and $\beta$ are shared between the samples from the same group:
 \begin{equation}
  [\text{labelled fraction}]_{ij}  = d_j(\alpha L_{ij} + \beta U_{ij})
 \end{equation}
 
 \subsubsection*{Parameter estimation}
 We use the maximum likelihood method (MLE) to obtain parameter values.
-In RNA-seq experiments, expression level is represented by read number.
-To model such data, we assume them to follow the negative binomial (NB) distribution, 
-because the NB distribution is  shown to successfully describe over-dispersed RNA-seq data 
+A typical RNA-seq experiment estimates gene abundance levels by read counts.
+It has been previously shown that read counts are well represented by a negative-binomial model,
+which takes over-dispersion into account 
 \citep{robinson2007moderated}.
 The NB distribution has two parameters, the mean $m$ and the dispersion parameter 
 $\alpha$.
-Hence,  a read number of a gene $i$ in a sample $j$ reads
+Hence,  a read number of a gene $i$ in a sample $j$ follows
 \begin{equation}
  K_{ij} \sim \text{NB}(m_{ij}, \alpha).
 \end{equation}
-Here we treat the  dispersion parameters $\alpha$ as  being shared between all
+\textcolor{red}{alpha above and alpha here mean different things - what about sigma}
+The dispersion parameters $\alpha$ is shared between all
 samples and genes. Otherwise it would not be possible to infer all parameters 
 from a small number of replicates (usually, only 2 or 3 points are available).
-
 
 We separated the fitting procedure into several simpler steps:
 \begin{enumerate}
  \item fitting of gene-specific parameters (e.g. degradation rate)
  \item fitting of shared parameters  
- \item fitting of the normalisation factors (for a spike-in-free design)
+ \item fitting of the normalization factors (for a spike-in-free design)
  \item estimation of the dispersion parameter 
 \end{enumerate}
-We repeat the steps 1-4 until
-user-specified convergence criteria is not met.
- Since gene-gene interactions are not considered by the model, it is possible to 
- fit this parameters independently in parallel. 
+We repeat the steps 1-4 until user-specified convergence criteria are met.
+We do not consider gene-gene interactions in this model, but it is possible to 
+ fit this parameters independently in future work. 
 
-To optimise the likelihood functions, 
-we use implementation of the {L-BFGS-U} method \citep{byrd1995limited} 
+We optimise the likelihood functions by using the {L-BFGS-U} method \citep{byrd1995limited}, which is
 available in the \verb|stats| R package \citep{rlang}.
