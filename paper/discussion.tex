@@ -1,4 +1,4 @@
-\subsection{Comparison with existing approaches}
+\subsubsection*{Comparison with existing approaches}
 The published approaches are different in terms of 
 data normalisation, statistical model and underlying mathematical model of the 
 RNA metabolism. Here we analyse the following software:
@@ -6,14 +6,12 @@ DRiLL \citep{rabani2014high},
 INSPEcT \citep{de2015inspect},
 DTA \citep{schwalb2012measurement},
 HALO \citep{friedel2010halo}.
-\par 
 In most cases, samples are normalised by utilising overdetermination of the system.
 The normalisation coefficients are estimated via regression
 (DTA, HALO) or during the MLE procedure together  
 with other parameters (INSPEcT, DRiLL). 
 Besides the normalisation during parameter fitting, 
 pulseR allows to use spike-ins counts as an alternative.
-\par
 HALO and DTA estimate degradation rates from a ratio of labelled and
 total RNA fractions without any assumptions on the statistical model.
 In DRiLL, expression levels are fitted to the binomial distribution. 
@@ -24,7 +22,6 @@ which implies the normal distribution.
 In contrast,  pulseR assumes the NB distribution
 for MLE of  all  parameters,
 which allows to work directly on the count data.
-\par
 Experiments may vary in scheme and time points number,
 and it is important how flexible to it a package is.
  DTA and HALO are designed to work only on a single time
@@ -33,7 +30,6 @@ Moreover, the mentioned packages can work only with  the pulse-experiments.
 pulseR package can handle different designs including chase- and combined 
 experiments with various number of data points,
 having formulas for mean read number estimation provided.	
-\par 
 The DRiLL and INSPEcT packages can model 
 time-dependent rates out of the box. Additionally, they can perform testing
 to select between constant rate and variable rate models.
@@ -57,7 +53,7 @@ $\ast$ - must be defined by a user.
 }
 \end{table}
 
-\subsection{Application}
+\subsubsection*{Application}
 We evaluated \verb|pulseR| performance using simulated data. 
 The software is able to reproduce gene-specific parameters and 
 sample normalisation factors.
