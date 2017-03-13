@@ -1,6 +1,6 @@
 \subsubsection*{Parameter definition}
 RNA dynamics can be described by ordinary differential equations,
-which have simple analytic solution 
+which have a simple analytic solution 
 if the degradation and synthesis rates are assumed to be constant.
 In the \verb|pulseR| package,
 users need to specify the expressions for the mean RNA abundances,
@@ -51,12 +51,12 @@ It has been previously shown that read counts are well represented by a negative
 which takes over-dispersion into account 
 \citep{robinson2007moderated}.
 The NB distribution has two parameters, the mean $m$ and the dispersion parameter 
-$\alpha$.
+$r$.
 Hence,  a read number of a gene $i$ in a sample $j$ follows
 \begin{equation}
  K_{ij} \sim \text{NB}(m_{ij}, r).
 \end{equation}
-The dispersion parameters $r$ is shared between all
+We assume $r$ to be shared between all
 samples and genes. Otherwise it would not be possible to infer all parameters 
 from a small number of replicates (usually, only 2 or 3 points are available).
 
