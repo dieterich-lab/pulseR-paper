@@ -12,8 +12,8 @@ The normalization coefficients are either estimated via regression
 with other parameters (INSPEcT, DRiLL). 
 Additionally, 
 \verb|pulseR| allows to use spike-ins counts as an alternative normalization strategy.
-HALO and DTA estimate degradation rates from a ratio of labelled and
-total RNA fractions without any assumptions on the statistical model \textcolor{red}{Careful here !}.
+HALO and DTA estimate degradation rates simply as  a ratio of labelled and
+total RNA fractions.
 In DRiLL, expression levels are fitted to the binomial distribution. 
 However, the kinetic rates are estimated via optimization of residual sum of squares in both, DRiLL and 
 INSPEcT (\textcolor{red}{I guess this is consistent discrete vs continuous}. 
