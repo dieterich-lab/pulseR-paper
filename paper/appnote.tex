@@ -21,26 +21,27 @@ by a 4sU.
 %\end{equation}
 %where $p$ is the probability of a single replacement and  
 % $\text{\#}u$ is the number of uridine bases in the molecule.
-\subsubsection*{Normalisation}
-We introduce additional parameters (\textcolor{red}{Which ?}) to account for different sequencing depths.
-Additionally, the pull-down procedure will have an effect on the amount and purity of captured RNA \textcolor{red}{Which parameter - please add a list of parameters to supplement?}. 
+\subsubsection*{Normalization}
+The pull-down procedure may have an effect on the amount and purity of captured RNA.
+To account for difference in sequencing depth and pull-down efficiency,
+we introduce additional normalization factors $\alpha_{j*}$. 
  For example, 
 if the labelled fraction consists of the labelled RNA $L_{ij}$ and the unlabelled RNA
  $U_{ij}$ molecules, for a sample $j$ and gene $i$ we have 
 \begin{equation}
- [\text{labelled fraction}]_{ij}  = \alpha_{j} L_{ij} + \beta_{j} U_{ij}
+ [\text{labelled fraction}]_{ij}  = \alpha_{j1} L_{ij} + \alpha_{j2} U_{ij}
 \end{equation}
-In case spike-ins are present, $\alpha_{j}$ and and $\beta_j$ can be directly estimated from spike-in read counts. 
-To this end, the user provides lists of spike-ins which represent unlabeled or labeled RNA.
+In case spike-ins are present, $\alpha_{j*}$  can be directly estimated from spike-in read counts. 
+To this end, the user provides lists of spike-ins which represent unlabelled or labelled RNA.
 \par
 In the absence of spike-ins, 
 normalization factors are derived from gene counts
 because the system is overdetermined.
-Inside a given RNA-seq group (e.g. [total, labeled, unlabeled ] x conditions) samples are normalized for sequencing depth $d_j$ following the DESeq procedure.
+Inside a given RNA-seq group (e.g. [total, labelled, unlabelled ] $\times$ conditions) samples are normalized for sequencing depth $d_j$ following the DESeq procedure.
 Normalization between the groups is performed during the fitting procedure, 
-and these coefficients $\alpha$ and $\beta$ are shared between the samples from the same group:
+and these coefficients $\alpha_{G*}$  are shared between the samples from the same group $G$:
 \begin{equation}
- [\text{labelled fraction}]_{ij}  = d_j(\alpha L_{ij} + \beta U_{ij})
+ [\text{labelled fraction}]_{ij}  = d_j(\alpha_{L1} L_{ij} + \alpha_{L2} U_{ij})
 \end{equation}
 
 \subsubsection*{Parameter estimation}
