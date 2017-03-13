@@ -68,8 +68,8 @@ We separated the fitting procedure into several simpler steps:
  \item estimation of the dispersion parameter 
 \end{enumerate}
 We repeat the steps 1-4 until user-specified convergence criteria are met.
-We do not consider gene-gene interactions in this model, but it is possible to 
- fit this parameters independently in future work. 
+We do not consider gene-gene interactions in this model, which 
+allows us to  fit gene-specific parameters independently for every individual gene. 
 
 We optimise the likelihood functions by using the {L-BFGS-U} method \citep{byrd1995limited}, which is
 available in the \verb|stats| R package \citep{rlang}.
