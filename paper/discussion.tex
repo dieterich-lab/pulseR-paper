@@ -16,12 +16,12 @@ HALO and DTA estimate degradation rates simply as  a ratio of labelled and
 total RNA fractions.
 In DRiLL, expression levels are fitted to the binomial distribution. 
 However, the kinetic rates are estimated via optimization of residual sum of squares in both, DRiLL and 
-INSPEcT (\textcolor{red}{I guess this is consistent discrete vs continuous}. 
+INSPEcT.
 In contrast, \verb|pulseR| assumes the NB distribution
 in MLE of all parameters, which allows to work directly with count data.
 Experiments may vary in design and the number of conditions and \verb|pulseR| offers unprecedented flexibility.
-While DTA and HALO are designed to work only on a single time
-point \textcolor{red}{???}, \verb|pulseR|, DRiLL and INSPEcT can infer rates from several time points.
+While DTA and HALO estimate rates on the basis of a single time point only (using all three fractions),
+\verb|pulseR|, DRiLL and INSPEcT can infer rates from several time points.
 While pulseR can handle different designs including pulse, chase- or combined 
 experiments, all other packages work only with pulse experiments.
 However, the DRiLL and INSPEcT packages can model 
