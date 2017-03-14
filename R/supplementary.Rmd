@@ -15,42 +15,79 @@ urlcolor: cyan
 
 ## Introduction
 
-Here we validate performance of the pulseR package on the simulated data.
-We consider a pulse-experiment with no spike-ins added.
-The data include the total, the pull-out and the flow-through
-fractions for four time points in two replicates.
+The aim of this document is to validate  the 
+ pulseR package using simulated data.
+First, we introduce the modelled system and how we simulate the read counts.
+Next, we explain how one applies `pulseR` to this data.
+We validate the performance of the package by comparison of the 
+parmeter estimations with their true values used in simulation.
 
-In the pulse-experiment, the unlabelled RNA is being degraded, starting
-from the steady-state amount at time $t=0$hr. The labelled fraction is being
-synthesised with the rate $s$, and it degrades with the same rate $d$ 
-as well.
-A system of ordinary differential equations, which describes this processes, is
+### Kinetic model
+
+We consider a pulse-experiment with no spike-ins added.
+In this scheme, a labelled 4sU molecules are introduced to the medium and 
+they are being incorporated in the nascent RNA.
+Using pull down procedure, it is possible to get label-enriched fraction 
+in order to quantify the kinetics rates of for the individual genes.
+We consider that all three fractions (total, labelled, unlabelled)
+are being sequenced and 
+read counts are available for every gene under consideration.
+Let us assume to have 2 replicates for 4 different time points, i.e.
+in total there $2\times 4\times 3=24$ samples.
+
+In the beginning of the experiment, the amount of the labelled RNA is zero and
+the unlabelled RNA equals the steady state amount $\mu$.
+The labelled RNA is being
+synthesised with the rate $s$, and it degrades with the rate $d$.
+We assume that  unlabelled one only degrades with the same rate $d$.\
+
+The following system of ordinary differential equations describes this processes:
 $$
 \begin{aligned}
 \frac{d\text{[labelled RNA]}}{dt} &= s - d \text{[labelled RNA]}\\
 \frac{d\text{[unlabelled RNA]}}{dt} &= -d \text{[unlabelled RNA]}\\
-\text{[total]} &= \text{[labelled]} + \text{[unlabelled]}
+\text{[total RNA]} &= \text{[labelled RNA]} + \text{[unlabelled RNA]}
 \end{aligned}
 $$
 For constant rates of degradation $d$ and synthesis $s$, the amounts of RNA 
-at the time $t$ are
+at time $t$ are
 $$ 
 \begin{aligned}
  \text{[total RNA]} &= \frac{s}{d} \equiv \mu \\
 \text{[labelled RNA]} &= \mu (1 - e^{-dt})  \\
- \text{[unlabelled RNA]} &= \mu e^{-dt}, 
+ \text{[unlabelled RNA]} &= \mu e^{-dt}.
 \end{aligned}
 $$
 
-where $\mu$ is the expression level of a gene in a steady state.
 
-## Definitions
+### Fractions
 
-### Formulas
+In reality, there are no pure labelled or unlabelled fractions in samples.
+That is why it may be important to model fraction cross-contamination.
+Here we assume that the labelled fraction consists of certain amount of
+the unlabelled one, and, vice versa, the unlabelled one is contaminated
+with the labelled molecules.
+Hence, we distinguish the number of labelled reads and the number of reads
+in the "labelled" pull-out fraction.
 
-We can simulate count data using internal pulseR function
-`pulseR:::generateTestDataFrom`. For this, one needs to define the formulas
-for the mean read number of all three fractions:
+$$ 
+\begin{aligned}
+ \text{[total fraction]} &= \mu \\
+\text{[labelled fraction]} &= \alpha_1 \text{[labelled RNA]} +
+\alpha_2 \text{[unlabelled RNA]}\\
+\text{[unlabelled fraction]} &= \alpha_3 \text{[unlabelled RNA]} +
+\alpha_4 \text{[labelled RNA]}\\
+\end{aligned}
+$$
+
+### Model definition in pulseR
+
+One can simulate count data using internal pulseR function
+`pulseR:::generateTestDataFrom`. This function takes as an input
+formulas for the mean read counts, a condition matrix 
+(i.e. condition $\times$ time), normalisation factors and the parameter values
+used in the formulas.
+
 
 ```{r}
 library(pulseR)
@@ -70,18 +107,6 @@ formulas <- MeanFormulas(
 ```
 
 ### Fractions
-
-In reality, there are no pure labelled or unlabelled fractions in samples.
-That is why it may be important to model fraction cross-contamination.
-Here we assume that the labelled fraction consists of certain amount of
-the unlabelled one, and, vice versa, the unlabelled one is contaminated
-with the labelled molecules.
-Hence, we distinguish the number of labelled reads and the number of reads
-in the "labelled" pull-out fraction.
-
-This definition allows us to calculate mean read number in the 
-fractions as a [linear combination](https://en.wikipedia.org/wiki/Linear_combination) of the 
-formulas for the labelled and unlabelled RNA amounts:
 
 ```{r}
 # important: the labels must be the same as in formulas,
