@@ -41,7 +41,7 @@ library(pulseR)
 
 set.seed(259)
 
-nGenes <- 5
+nGenes <- 500
 nReplicates <- 2
 nTime <- 4
 
@@ -55,13 +55,14 @@ synthesised with the rate $s$, and it degrades with the rate $d$.
 We assume that  unlabelled one only degrades with the same rate $d$.\
 
 The following system of ordinary differential equations describes this processes:
-$$
+\begin{equation}
 \begin{aligned}
 \frac{d\text{[labelled RNA]}}{dt} &= s - d \text{[labelled RNA]}\\
 \frac{d\text{[unlabelled RNA]}}{dt} &= -d \text{[unlabelled RNA]}\\
 \text{[total RNA]} &= \text{[labelled RNA]} + \text{[unlabelled RNA]}
 \end{aligned}
-$$
+\label{eq:model}
+\end{equation}
 For constant rates of degradation $d$ and synthesis $s$, the amounts of RNA 
 at time $t$ are
 $$ 
@@ -152,7 +153,7 @@ eq.\ref{eq:contamination}.
 ## Conditions 
 
 We specify the condition `data.frame`, which includes information about
-the type of  sample and its time point:
+the type of a  sample and the time point of its measurements:
 
 ```{r}
 # create nReplicates * nTime * 3 (labelled, unlabelled, total) data points
@@ -165,7 +166,11 @@ knitr::kable(conditions)
 
 ## Normalisation factors
 
-We divide samples into groups depending on their time point and fraction.
+Total amounts of labelled and unlabelled RNA are changing during the experiment.
+It may affect the normalisation coefficients defined in eq.\ref{eq:contamination}.
+That is why it is useful to introduce such coefficients for 
+every time point, and, hence, 
+we define samples groups depending on their measurement time and fraction.
 Except the total fraction, other samples are considered to belong to different
 group if the time points are different:
 ```{r}
@@ -193,6 +198,9 @@ str(normFactors)
 ```
 
 ## Simulation
+
+First, we define the true parameter values, on the basis of which 
+we will generate the read counts matrix.
 We sample the mean expression level and the degradation rates from 
 finite intervals:
 ```{r}
@@ -203,10 +211,9 @@ par <- list(size = 1e2)
 par$mu <- exp(runif(nGenes, 0, log(1e5)))
 # set the degradation rates from log-uniform distribution
 par$d <- exp(runif(nGenes,log(0.01), log(2)))
-
-
 ```
-And, finally, we simulate the data from the negative binomial distribution
+Now we have all the information in order to simulate the data 
+from the negative binomial distribution
 using the `generateTestDataFrom` function: 
 ```{r}
 # the generateTestDataFrom needs for an input normFactors 
@@ -216,19 +223,29 @@ allNormFactors <- pulseR:::multiplyList(normFactors, fractions)
 
 counts <- generateTestDataFrom(
   formulas, formulaIndexes, allNormFactors, par, conditions)
+counts[1:5,1:10]
+dim(counts)
 ```
 
 # Fitting
+
+Having generated data, we would like to investigate how well the true
+parameter values for the model defined in eq.\ref{eq:model} 
+can be recovered using the 
+`pulseR` package.
 
 This section describes a usual workflow for the analysis of the count data
 originating from the spike-ins-free experiment  defined above.
 This is an entry point of the package application to the real data.
 
 ## Create the PulseData object
-We define a PulseData object on the basis of the generated read counts,
+
+The fitting procedure requires the definition of the model formulas, 
+sample description and raw data as a single `PulseData` object.
+We use previously defined objects, namely, the generated read counts,
 the condition matrix, relations between formulas and samples.
-In addition, we provide the information
-how to split the samples during the normalisation.
+In addition, we provide the information (`fractions`)
+how to split the samples during the normalisation:
 ```{r}
 pd <- PulseData(
   counts = counts,
@@ -240,9 +257,19 @@ pd <- PulseData(
 ```
 
 ## Set fitting options
-Before the fitting, one needs to provide
-the lower and upper boundaries for the parameters values.
-Also we set here the relative tolerance thresholds.
+
+Parameter values are estimated by maximum likelihood method using
+L-BFGS-S  optimisation procedure (see help for `optim`).
+This function requires to 
+define boundaries for possible parameter values and a stopping criteria.
+In `pulseR`, the fitting procedure uses relative change in parameter values
+between sequential iterations as the stopping rule ("relative tolerance").
+Normalisation factors can be recovered only up to a constant multiplicative 
+factor.   
+By default, the first normalisation factor is always equal 1
+(in our case, for the total fraction). However, the user must provide 
+formal boundary values for the first factor as well, although
+they will be ignored. This is done for the sake of consistency.
 ```{r }
 # lower and upper boundaries for the normalisation factors. 
 # The total one will be ignored, because the first coefficient 
@@ -267,10 +294,15 @@ opts <- setTolerance(params = .01, normFactors = .001, options = opts)
 
 ```
 ## Fit
- One needs to provide the first guess of
-the parameters values to the fitting function.
+The L-BFGS-U algorithm requires an initial guess for 
+the parameters values.
 The outcome of the fitting procedure may depend
 on the choice of the initial values.
+It is possible to generate random parameter values within the defined boundaries
+using the function `initParameters`. The function will generate only 
+the parameter values, which were not set in the argument `par`.
+Since mean read number and the degradation rate are unique for every gene, 
+we also specify it in the argument `geneParams`.
 ```{r}
 # initialise mu and d as gene-specific parameters, i.e. they must
 # be sampled for every single gene individually
@@ -284,22 +316,11 @@ res <- fitModel(pd, initPars, opts)
 
 # Results
 
-### Normalisation factors
+## Predictions
 
-The normalisation of the main fraction in the samples is 
-recovered well (i.e. the coefficient `3`).
-```{r}
-str(res$normFactors)
-```
-Since the normalisation factors are affect the mean read number in 
-a sample,
-they affect the identifiability of the expression levels and the degradation 
-rates.
-
-### Gene-specific parameters
-
-The estimated read mean numbers are well consistent with the 
-raw simulated data:
+The model predictions for the mean read numbers  can be 
+estimated using the `predictExpression` function. The plot shows very good 
+fit of the model to the count data:
 ```{r, fig.height=4, fig.width=4}
 # get the expected read number for every data point in counts
 pr <- predictExpression(pd, res)
@@ -309,9 +330,28 @@ plot(x = as.vector(pr$predictions)+.5, y = as.vector(pd$counts)+.5,
      main = "Counts vs. means")
 ```
 
-Due to high number of total fraction samples, the expression level $\mu$ 
-is also well recovered from the data:
+## Normalisation factors
 
+The normalisation of the main type of RNA (labelled for the labelled
+fraction and unlabelled for the unlabelled) are 
+well recovered. However, the factors for the contaminant have a poor 
+estimation, since its amount is much lower and estimation of 
+its contribution  is much more affected by noise then, see second terms 
+in the list of relative errors:
+```{r}
+str(relist(1 - unlist(res$normFactors) / unlist(normFactors), normFactors))
+```
+According to the model structure, bias in the estimation of the normalisation
+factors affects other model parameters, e.g. the overall degradation rate.
+That is why usage of spike-ins can be beneficial, since
+it allows to refer to absolute quantities.
+
+## Gene-specific parameters
+
+The estimation of the expression levels are in a good accordance  with the 
+true $\mu$ parameter values,
+because there are several data points for the total 
+fraction, and this fraction represents the very level of the gene expression:
 ```{r, fig.height=3.4, fig.width=3, fig.show='hold'}
 plot(density(1 - res$mu/par$mu), main="rel. err. mu")
 plot(x = par$mu, y = res$mu, 
@@ -321,30 +361,32 @@ abline(0, 1, col = 3)
 ```
 The estimation of the degradation rate is based on the less number of samples 
 (the total fractions provide the information only about the expression level).
-Hence, the quality of the fit is worse, than for the $\mu$ parameter.
-We see that the error is higher for less degrading genes:
+Degradation of the unlabelled RNA results in small read counts for the genes, 
+hence, in higher noise/signal ratio.
+It worsens the quality of the fit for the degradation rate.
+That the error is higher for less degrading genes:
 ```{r, fig.height=4, fig.width=4}
 plot(x = par$d, y = res$d, 
      pch = 16, cex = .3, log = 'xy', 
      xlab = "true", ylab = "fitted", main = "d")
 abline(0, 1, col = 3)
-
 ```
 
-However, the misfit in $d$ for lowly degrading genes 
-has a minor effect on the error in predictions of the read number
-in comparison to the misfit in the higher ones, because
-it has an exponential impact:
+However, the error in $d$ for lowly degrading genes (small $d$ values) 
+has a minor effect on the mispredictions of the read number, because
+$d$ has an exponential impact (e.g. $\mu e^{-dt}$):
 ```{r, fig.height = 4, fig.width = 4}
 plot(x =par$d, y = exp(par$d-res$d),
-     pch = 16, cex = .3, 
-     xlab = "true", ylab = "fitted", 
-     main = expression(exp(d[true]-d[fitted])))
+     pch = 16, cex = .3, log='x',
+     xlab = "true d",  
+     ylab = expression(exp(d[true]-d[fitted])),
+     main = "rel.err in read count prediction")
 abline(1, 0, col = 3)
 ```
 
-Hence, the genes with the higher turn-over get a higher weight during 
-optimisation of the degradation rate for the case of this simulated data.
+That is why the genes with the higher turn-over rate 
+have a higher weight during the 
+optimisation, and the degradation rate is better recovered.
 
 As mentioned before,  the normalisation of the samples has an impact
 on the gene-specific parameters. In our experiment,
