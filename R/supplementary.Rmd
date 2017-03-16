@@ -431,14 +431,16 @@ abline(a = 0, b = 0, col = 3)
 ```
 
 The error in estimation of $d$ for lowly degrading genes (small $d$ values) 
-is higher, fig. \ref{fig:dTrueFit} right, because misfit in $d$ with small values
-has a minor effect on the mispredictions of the read number due to 
-an exponential dependance (e.g. $\mu e^{-dt}$), fig. \ref{fig:errInD}.
-Hence, genes with low degradation rate are not 
+is higher, fig. \ref{fig:dTrueFit} right, because misfit in $d$ for small values
+has a little effect on the mispredictions of the read number due to 
+the exponential dependence (e.g. $\mu e^{-dt}$), fig. \ref{fig:errInD}.
+Hence, the precision of degradation rate estimation is low if
+the kinetics is slow in comparison to the time scale of the measurement.
+In this case, changes in read counts will be masked by noise.
 ```{r include=FALSE}
 cap <- paste0(
  "Contribution of the error in the degradation rate $d$ estimation to ",
- "the mean read number predition $\\mu e^{-dt}$ for the time point $t=1$. ",
+ "the mean read number prediction $\\mu e^{-dt}$ for the time point $t=1$. ",
  "Misfit in small degradation rates has a little contribution to ",
  " mean read number misprediction.", 
  "\\label{fig:errInD}"
@@ -477,7 +479,7 @@ from each other if a considerable number of genes with low $d$ are present.
 
 This results demonstrate possible issues which can take place in the experiments
 without added spike-ins controls. However, experimental design for the 
-pulse-chase RNA-seq experiments goes beyound the skope if this application note.
+pulse-chase RNA-seq experiments goes beyond the scope if this application note.
 
 ## Conclusion
 
