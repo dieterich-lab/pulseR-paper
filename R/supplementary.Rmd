@@ -495,5 +495,5 @@ fractions provided, the cross-contamination rates and the sequence depth
 (read numbers per feature).
 The `pulseR` package simplifies the MLE fitting procedure for 
 pulse-chase experiments. However, it does not solve identifiability 
-issues if the system is ill-posed and responsible and thorough 
+issues if the system is ill-posed. A responsible and thorough 
 experimental design is assumed.
