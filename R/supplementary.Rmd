@@ -4,15 +4,24 @@ author: "Alexey Uvarovskii, Christoph Dieterich"
 date: '`r Sys.Date()`'
 output:
   pdf_document:
+    fig_caption: yes
     highlight: default
+    keep_tex: yes
+    number_sections: yes
     toc: yes
     toc_depth: 3
-    number_sections: true
+  html_document:
+    toc: yes
+    toc_depth: '3'
   github_document: default
 mainfont: Helvetica
 fontsize: 12pt
 urlcolor: cyan
 ---
+
+```{r include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H')
+```
 
 # Introduction
 
@@ -41,7 +50,7 @@ library(pulseR)
 
 set.seed(259)
 
-nGenes <- 500
+nGenes <- 1000
 nReplicates <- 2
 nTime <- 4
 
@@ -181,9 +190,9 @@ fractions[grep("total", fractions)] <- "total_fraction"
 knitr::kable(cbind(rownames(conditions),fractions))
 ```
 
-We use the internal package function  `pulseR:::addKnownToFormulas` in order 
+We use the internal function  `pulseR:::addKnownToFormulas` in order 
 to get the correct form of the list with the normalisation factors.
-```{r}
+```{r collapse=TRUE}
 known <- pulseR:::addKnownToFormulas(formulas, formulaIndexes, conditions)
 normFactors <- known$formulaIndexes[unique(names(known$formulaIndexes))]
 # the total fractions have the reference factor = 1
@@ -200,7 +209,7 @@ str(normFactors)
 ## Simulation
 
 First, we define the true parameter values, on the basis of which 
-we will generate the read counts matrix.
+we generate the read count matrix.
 We sample the mean expression level and the degradation rates from 
 finite intervals:
 ```{r}
@@ -208,15 +217,15 @@ finite intervals:
 par <- list(size = 1e2)
 # set mean read number for every gene 
 # by sampling from the log-uniform distribution
-par$mu <- exp(runif(nGenes, 0, log(1e5)))
+par$mu <- exp(runif(nGenes, 10, log(1e5)))
 # set the degradation rates from log-uniform distribution
-par$d <- exp(runif(nGenes,log(0.01), log(2)))
+par$d <- exp(runif(nGenes,log(0.05), log(5)))
 ```
-Now we have all the information in order to simulate the data 
+Now we have all the information in order to sample read counts  
 from the negative binomial distribution
 using the `generateTestDataFrom` function: 
 ```{r}
-# the generateTestDataFrom needs for an input normFactors 
+# the generateTestDataFrom needs normalisation factors
 # provided for every individual sample (i.e. we need to utilise 
 # the group information ourselves)
 allNormFactors <- pulseR:::multiplyList(normFactors, fractions)
@@ -229,10 +238,9 @@ dim(counts)
 
 # Fitting
 
-Having generated data, we would like to investigate how well the true
+We would like to investigate how well the true
 parameter values for the model defined in eq.\ref{eq:model} 
-can be recovered using the 
-`pulseR` package.
+can be recovered using the  `pulseR` package.
 
 This section describes a usual workflow for the analysis of the count data
 originating from the spike-ins-free experiment  defined above.
@@ -286,11 +294,11 @@ ubNormFactors <- list(
   flow_through   = c(10, 2))
 # set lower and upper boundaries for the rest of the parameters
 opts <- setBoundaries(
-  list(mu = c(1, 1e6), d = range(par$d) * c(1 / 5, 5)),
+  list(mu = c(1, 1e6), d = range(par$d) * c(1 / 5, 2)),
   normFactors = list(lbNormFactors, ubNormFactors))
 # set the tolerance for the gene-specific parameters and
 # the normalisation factors
-opts <- setTolerance(params = .01, normFactors = .001, options = opts)
+opts <- setTolerance(params = .01, normFactors = .1, options = opts)
 
 ```
 ## Fit
@@ -306,7 +314,8 @@ we also specify it in the argument `geneParams`.
 ```{r}
 # initialise mu and d as gene-specific parameters, i.e. they must
 # be sampled for every single gene individually
-initPars <- initParameters(par = NULL, geneParams = c("mu", "d"), pd, opts)
+initPars <- initParameters(par = list(d=.1, mu=counts[,1]),
+                           geneParams = c("mu", "d"), pd, opts)
 str(initPars)
 ```
 Now we are ready to start the fitting:
@@ -316,18 +325,39 @@ res <- fitModel(pd, initPars, opts)
 
 # Results
 
+The values of fitted parameters together with the normalisation 
+factor estimations and `size` parameter of the negative binomial
+distribution (see `dnbinom` help) are in the list `res`:
+```{r}
+names(res)
+```
+
 ## Predictions
 
 The model predictions for the mean read numbers  can be 
 estimated using the `predictExpression` function. The plot shows very good 
-fit of the model to the count data:
-```{r, fig.height=4, fig.width=4}
+fit of the model to the count data, fig. \ref{fig:prediction}.
+```{r include=FALSE}
+cap=paste0(
+  "Estimations of mean read numbers  compared with ",
+  "the read numbers in the simulated data in absolute values (left) and ",
+  " as a ratio (right).", 
+  "\\label{fig:prediction}"
+  )
+```
+
+```{r, fig.height=4, fig.width=8 , fig.cap=cap, fig.pos="!h"}
 # get the expected read number for every data point in counts
 pr <- predictExpression(pd, res)
-plot(x = as.vector(pr$predictions)+.5, y = as.vector(pd$counts)+.5, 
+par(mfrow=c(1,2))
+plot(y = as.vector(pr$predictions) + .5,
+     x = as.vector(pd$counts) + .5, 
      pch = 16, cex = .3, log = 'xy', 
-     xlab = "predicted", ylab = "experiment",
-     main = "Counts vs. means")
+     ylab = "predicted", xlab = "experiment")
+plot(y =((as.vector(pr$predictions) + .5) / (as.vector(pd$counts) + .5)), 
+     x = as.vector(pd$counts) + .5, 
+     pch = 16, cex = .3, log = 'x', 
+     xlab = "predicted", ylab = "predicted/experiment")
 ```
 
 ## Normalisation factors
@@ -351,79 +381,117 @@ it allows to refer to absolute quantities.
 The estimation of the expression levels are in a good accordance  with the 
 true $\mu$ parameter values,
 because there are several data points for the total 
-fraction, and this fraction represents the very level of the gene expression:
-```{r, fig.height=3.4, fig.width=3, fig.show='hold'}
-plot(density(1 - res$mu/par$mu), main="rel. err. mu")
+fraction, and this fraction represents the very level of the gene expression,
+fig. \ref{fig:muFit}.
+```{r include=FALSE}
+cap <- paste0(
+  "Left: Fitted value for the \"mu\" parameter versus the true parameter value. ",
+  "Right: Distribution of the relative error in the mean read ",
+  "number estimation (\"mu\").\n",
+  "The line $y=x$  is in green.",
+  "\\label{fig:muFit}"
+)
+```
+
+```{r echo=FALSE, fig.height=3.4, fig.width=6.5,  fig.cap=cap}
+par(mfrow=c(1,2))
+#plot(density(1 - res$mu/par$mu), main="rel. err. mu")
 plot(x = par$mu, y = res$mu, 
      pch = 16, cex = .3, log = 'xy', 
      xlab = "true", ylab = "fitted", main = "mu")
 abline(0, 1, col = 3)
+plot(x = par$mu, y = res$mu/par$mu, 
+     pch = 16, cex = .3, log = 'x', 
+     xlab = "true", ylab = "fitted/true", main = "mu")
 ```
+
 The estimation of the degradation rate is based on the less number of samples 
 (the total fractions provide the information only about the expression level).
-Degradation of the unlabelled RNA results in small read counts for the genes, 
-hence, in higher noise/signal ratio.
-It worsens the quality of the fit for the degradation rate.
-That the error is higher for less degrading genes:
-```{r, fig.height=4, fig.width=4}
+
+```{r include=FALSE}
+cap <- paste0(
+  "Fitted and true values for the degradation rate $d$ in absolute values ",
+  " (left) and as a ratio (right). The relative error is higher for the genes ",
+  " with  degradation rates close to extreme values (explained in the text). ",
+  "The lines $y=x$ (left) and $y=0$ (right) are in green.",
+  "\\label{fig:dTrueFit}"
+)
+```
+
+```{r,echo=FALSE, fig.height=4, fig.width=8, fig.cap=cap, fig.pos="!H"}
+par(mfrow=c(1,2))
 plot(x = par$d, y = res$d, 
      pch = 16, cex = .3, log = 'xy', 
      xlab = "true", ylab = "fitted", main = "d")
 abline(0, 1, col = 3)
+plot(x = par$d, y = log2(res$d / par$d), 
+     pch = 16, cex = .3, log = 'x',
+     xlab = "true d", ylab = "log2(fitted/true)", main = "d")
+abline(a = 0, b = 0, col = 3)
 ```
 
-However, the error in $d$ for lowly degrading genes (small $d$ values) 
-has a minor effect on the mispredictions of the read number, because
-$d$ has an exponential impact (e.g. $\mu e^{-dt}$):
-```{r, fig.height = 4, fig.width = 4}
+The error in estimation of $d$ for lowly degrading genes (small $d$ values) 
+is higher, fig. \ref{fig:dTrueFit} right, because misfit in $d$ with small values
+has a minor effect on the mispredictions of the read number due to 
+an exponential dependance (e.g. $\mu e^{-dt}$), fig. \ref{fig:errInD}.
+Hence, genes with low degradation rate are not 
+```{r include=FALSE}
+cap <- paste0(
+ "Contribution of the error in the degradation rate $d$ estimation to ",
+ "the mean read number predition $\\mu e^{-dt}$ for the time point $t=1$. ",
+ "Misfit in small degradation rates has a little contribution to ",
+ " mean read number misprediction.", 
+ "\\label{fig:errInD}"
+)
+```
+
+```{r,echo=FALSE, fig.height = 4, fig.width = 4, fig.cap=cap, fig.pos="h"}
 plot(x =par$d, y = exp(par$d-res$d),
      pch = 16, cex = .3, log='x',
      xlab = "true d",  
      ylab = expression(exp(d[true]-d[fitted])),
-     main = "rel.err in read count prediction")
+)
 abline(1, 0, col = 3)
 ```
 
-That is why the genes with the higher turn-over rate 
-have a higher weight during the 
-optimisation, and the degradation rate is better recovered.
+From another hand,
+parameters for the genes with a fast kinetics are difficult to capture,
+if the time resolution is not fine enough. This leads to higher error
+in estimation of $d$ if true $d$ value is high, fig. \ref{fig:dTrueFit}.
 
-As mentioned before,  the normalisation of the samples has an impact
-on the gene-specific parameters. In our experiment,
-the degradation rates are over-estimated for the majority of the genes.
-This is counter-balanced by a positive
-bias in the normalisation factors estimation
-The estimation of $d$
-for the less expressed genes are less precise, because the dispersion 
-of the negative binomial  random variable increases for
-lower means:
+Identifiability of the parameters can be affected by the model structure and
+experimental design. A misfit in the  normalisation factors 
+can shift estimations of the degradation rates up to a constant factor.
 
-```{r, fig.height=4, fig.width=4}
+If $d$ is small, the kinetics of fractions can be approximated via 
+Taylor expansion as 
+$$
+\alpha_1\mu e^{-dt} + \alpha_2\mu (1-e^{-dt}) = 
+\alpha_1\mu (1-dt) + \alpha_2\mu dt+ o(d) = 
+\alpha_1\mu  + (\alpha_2 -\alpha_1)d \mu t+ o(d)
+$$
+The degradation rate $d$ and the difference of the
+normalisation factors $(\alpha_2-\alpha_1)$ appear to be in multiplication, 
+which results in poor identifiability of this parameters in separation 
+from each other if a considerable number of genes with low $d$ are present.
 
-plot(x = par$mu, y = log2(res$d / par$d), 
-     pch = 16, cex = .3, log = 'x',
-     xlab = "true mu", ylab = "fitted/true", main = "d")
-abline(a = 0, b = 0, col = 3)
-```
-
-```{r}
-summary(res$d/par$d)
-```
-
+This results demonstrate possible issues which can take place in the experiments
+without added spike-ins controls. However, experimental design for the 
+pulse-chase RNA-seq experiments goes beyound the skope if this application note.
 
 ## Conclusion
 
 Here we presented a validation of the pulseR package performance on 
-the simulated data. As a result, we show that the values of
+the simulated data. We show that the values of
 the gene-specific parameters  can be recovered by 
-the maximum likelihood estimation  implemented in the package.
-The quality of the estimations depends directly on the data, i.e.
-on the amount of information and noise in the read numbers.
-
-The pulseR package enables to estimate parameters even  
-in the absence of  spike-ins. 
+the maximum likelihood estimation even in the absence of the spike-in control.
 However, this approach is limited to the systems, which 
 has structurally and practically identifiable parameters.
-The identifiability is defined by the number of replicates, the type of the
+The identifiability of the parameters 
+depends on the number of replicates, the type of the
 fractions provided, the cross-contamination rates and the sequence depth 
 (read numbers per feature).
+The `pulseR` package simplifies the MLE fitting procedure for 
+pulse-chase experiments. However, it does not solve identifiability 
+issues if the system is ill-posed and responsible and thorough 
+experimental design is assumed.
