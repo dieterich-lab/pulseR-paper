@@ -348,7 +348,7 @@ cap=paste0(
 
 ```{r, fig.height=4, fig.width=8 , fig.cap=cap, fig.pos="!h"}
 # get the expected read number for every data point in counts
-pr <- predictExpression(pd, res)
+pr <- predictExpression(res, pd)
 par(mfrow=c(1,2))
 plot(y = as.vector(pr$predictions) + .5,
      x = as.vector(pd$counts) + .5, 

@@ -1,7 +1,7 @@
 PulseR workflow
 ================
 Alexey Uvarovskii
-2017-03-01
+2017-03-23
 
 ``` r
 library(pulseR)
@@ -120,7 +120,7 @@ result <- fitModel(pd, initPars, opts)
 ```
 
 ``` r
-pr <- predictExpression(pd, result)
+pr <- predictExpression(result, pd)
 
 plot(
   x = as.vector(pr$predictions),
