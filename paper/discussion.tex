@@ -1,6 +1,6 @@
 \subsubsection*{Comparison with existing approaches}
 All published approaches differ in terms of 
-data normalization, statistical model and level of detail with regards to 
+data normalization, statistical model and level of detail with regard to 
 RNA metabolism. We have compared the following software packages with \verb|pulseR| :
 DRiLL \citep{rabani2014high},
 INSPEcT \citep{de2015inspect},
@@ -11,7 +11,7 @@ The normalization coefficients are either estimated via regression
 (DTA, HALO) or during the MLE procedure together  
 with other parameters (INSPEcT, DRiLL). 
 Additionally, 
-\verb|pulseR| allows to use spike-ins counts as an alternative normalization strategy.
+\verb|pulseR| allows to use spike-in counts as an alternative normalization strategy.
 HALO and DTA estimate degradation rates simply as  a ratio of labelled and
 total RNA fractions.
 In DRiLL, expression levels are fitted to the binomial distribution. 
@@ -29,20 +29,24 @@ time-dependent rates out of the box.
 Moreover, the DRiLL software is able to model the gene-transcript dependence structure.
 Table 1 summarizes all relevant software features.
 \begin{table}[tbh]
+ \vspace*{-.3cm}
  \begin{tabular}{|l|c|c|c|c|c|}\hline
-                        &pulseR &DRiLL          &INSPEcT&DTA    &HALO       \\\hline
- statistical model      & NB    &N, BIN         &N       & -    & -      \\\hline                         
- spike-ins              & +     &   -           &  -     &  -    & -         \\\hline               
- several time points    & +     &   +           &  +     &  -    & -         \\\hline                    
-  variable design $^1$       & +     &   -           &  -     &  -    & -         \\\hline 
- non-constant rates     & -     &   +           &  +     &  -    & -         \\\hline 
-            uridine bias& +     &   -           &  -     &  +    & +         \\\hline 
-       RNA processing   &$\ast$ &   +           &  +     &  -    & -         \\\hline 
-  language              & R     &MATLAB         &  R     &  R    & Java      \\\hline 
+                        &\verb|pulseR| &DRiLL          &INSPEcT&DTA    &HALO       \\\hline
+ statistical model      & NB           &N, BIN         &N       & -    & -      \\\hline                         
+ spike-ins              & +            &   -           &  -     &  -    & -         \\\hline               
+ several time points    & +            &   +           &  +     &  -    & -         \\\hline                    
+  variable design $^1$  & +            &   -           &  -     &  -    & -         \\\hline 
+ non-constant rates     & -            &   +           &  +     &  -    & -         \\\hline 
+      uridine bias      & $\ast$       &   -           &  -     &  +    & +         \\\hline 
+       RNA processing   &$\ast$        &   +           &  +     &  -    & -         \\\hline 
+  language              & R            &MATLAB         &  R     &  R    & Java      \\\hline 
  \end{tabular}
-\caption{Comparison of available software for parameter estimation in 
+ \vspace*{.2cm}
+\caption{
+Comparison of available software for parameter estimation in 
 pulse-chase experiments. N: normal, NB: negative binomial, BIN: binomial.
 $\ast$ - must be defined by a user. $^1$ - pulse, chase or combination thereof experiments.
+ \vspace*{-.5cm}
 }
 \end{table}
 We simulated count data for a pulse experiment 

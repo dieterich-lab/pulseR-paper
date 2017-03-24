@@ -5,10 +5,10 @@ if the degradation and synthesis rates are assumed to be constant.
 In the \verb|pulseR| package,
 users need to specify the expressions for the mean RNA abundances.
 Alternatively, formulas can be generated using package functions for the 
-most frequent use cases, see package vignettes. 
+most frequent use cases, see package documentation. 
 
 Although most interest is focused on the gene-specific parameters,
-pulseR allows to introduce shared parameters.
+\verb|pulseR| allows to introduce shared parameters.
  This can be useful for taking into account the difference in the uridine content, since
 it can introduce a bias in the estimations \citep{miller2011dynamic,
 schwalb2012measurement}.
@@ -32,12 +32,13 @@ if the labelled fraction consists of the labelled RNA $L_{ij}$ and the unlabelle
  [\text{labelled fraction}]_{ij}  = \alpha_{j1} L_{ij} + \alpha_{j2} U_{ij}
 \end{equation}
 In case spike-ins are present, $\alpha_{j*}$  can be directly estimated from spike-in read counts. 
-To this end, the user provides lists of spike-ins which represent unlabelled or labelled RNA.
+To this end, the user provides lists of spike-ins, which represent unlabelled or labelled RNA.
 \par
 In the absence of spike-ins, 
 normalization factors are derived from gene counts
 because the system is overdetermined.
-Inside a given RNA-seq group (e.g. [total, labelled, unlabelled ] $\times$ conditions) samples are normalized for sequencing depth $d_j$ following the DESeq procedure.
+Inside a given RNA-seq group (e.g. [total, labelled, unlabelled ] $\times$ conditions) samples
+are normalized for sequencing depth $d_j$ following the DESeq procedure \citep{anders2010differential}.
 Normalization between the groups is performed during the fitting procedure, 
 and these coefficients $\alpha_{G*}$  are shared between the samples from the same group $G$:
 \begin{equation}
@@ -71,5 +72,5 @@ We repeat the steps 1-4 until user-specified convergence criteria are met.
 We do not consider gene-gene interactions in this model, which 
 allows us to  fit gene-specific parameters independently for every individual gene. 
 
-We optimise the likelihood functions by using the {L-BFGS-U} method \citep{byrd1995limited}, which is
+We optimize the likelihood functions by using the {L-BFGS-U} method \citep{byrd1995limited}, which is
 available in the \verb|stats| R package \citep{rlang}.
