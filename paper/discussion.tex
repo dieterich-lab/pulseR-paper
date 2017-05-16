@@ -29,24 +29,26 @@ time-dependent rates out of the box.
 Moreover, the DRiLL software is able to model the gene-transcript dependence structure.
 Table 1 summarizes all relevant software features.
 \begin{table}[tbh]
- \vspace*{-.3cm}
+ \vspace*{-.4cm}
  \begin{tabular}{|l|c|c|c|c|c|}\hline
                         &\verb|pulseR| &DRiLL          &INSPEcT&DTA    &HALO       \\\hline
- statistical model      & NB           &N, BIN         &N       & -    & -      \\\hline                         
- spike-ins              & +            &   -           &  -     &  -    & -         \\\hline               
- several time points    & +            &   +           &  +     &  -    & -         \\\hline                    
-  variable design $^1$  & +            &   -           &  -     &  -    & -         \\\hline 
- non-constant rates     & -            &   +           &  +     &  -    & -         \\\hline 
-      uridine bias      & $\ast$       &   -           &  -     &  +    & +         \\\hline 
-       RNA processing   &$\ast$        &   +           &  +     &  -    & -         \\\hline 
-  language              & R            &MATLAB         &  R     &  R    & Java      \\\hline 
+ statistical model      & NB           &N, BIN         &N       & $-$  & $-$      \\\hline                         
+ spike$-$ins            & $+$          &   $-$         &  $-$   &  $-$ & $-$         \\\hline               
+ several time points    & $+$          &   $+$         &  $+$   &  $-$ & $-$         \\\hline                    
+  variable design $^1$  & $+$          &   $-$         &  $-$   &  $-$ & $-$         \\\hline 
+ non$-$constant rates   & $-$          &   $+$         &  $+$   &  $-$ & $-$         \\\hline 
+      uridine bias      & $\ast$       &   $-$         &  $-$   &  $+$ & $+$         \\\hline 
+       RNA processing   &$\ast$        &   $+$         &  $+$   &  $-$ & $-$         \\\hline 
+  language              & R            &MATLAB         &  R     &  R   & Java      \\\hline 
  \end{tabular}
- \vspace*{.2cm}
+ \vspace*{.1cm}
 \caption{
 Comparison of available software for parameter estimation in 
-pulse-chase experiments. N: normal, NB: negative binomial, BIN: binomial.
+pulse-chase experiments. 
+$+$: present, $-$: not implemented,
+N: normal, NB: negative binomial, BIN: binomial.
 $\ast$ - must be defined by a user. $^1$ - pulse, chase or combination thereof experiments.
- \vspace*{-.5cm}
+ \vspace*{-.7cm}
 }
 \end{table}
 We simulated count data for a pulse experiment 
